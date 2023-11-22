@@ -51,35 +51,34 @@ import java.util.stream.*;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
+public class Task1 {
 
+    public static class Result {
 
-class Result {
+        /*
+         * Complete the 'maxXor' function below.
+         *
+         * The function is expected to return an INTEGER.
+         * The function accepts following parameters:
+         *  1. INTEGER lo
+         *  2. INTEGER hi
+         *  3. INTEGER k
+         */
 
-    /*
-     * Complete the 'maxXor' function below.
-     *
-     * The function is expected to return an INTEGER.
-     * The function accepts following parameters:
-     *  1. INTEGER lo
-     *  2. INTEGER hi
-     *  3. INTEGER k
-     */
-
-    public static int maxXor(int lo, int hi, int k) {
-        int max = 0;
-        for (int a = lo; a <= hi; a++) {
-            for (int b = a + 1; b <= hi; b++) {
-                int xor = a ^ b;
-                if (xor <= k && xor > max) {
-                    max = xor;
+        public static int maxXor(int lo, int hi, int k) {
+            int max = 0;
+            for (int a = lo; a <= hi; a++) {
+                for (int b = a + 1; b <= hi; b++) {
+                    int xor = a ^ b;
+                    if (xor <= k && xor > max) {
+                        max = xor;
+                    }
                 }
             }
+            return max;
         }
-        return max;
     }
-}
 
-public class Task1 {
     public static void main(String[] args) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 //        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
