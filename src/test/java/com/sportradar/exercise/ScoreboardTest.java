@@ -15,8 +15,14 @@ public class ScoreboardTest {
 
     @Test
     public void testStartMatch() {
-        scoreboard.startMatch("Home1", "Away1");
+        scoreboard.startMatch("Home Team", "Away Team");
         var summary = scoreboard.getSummary();
         assertEquals(1, summary.size());
+
+        var match = summary.get(0);
+        assertEquals("Home Team", match.getHomeTeam());
+        assertEquals("Away Team", match.getAwayTeam());
+        assertEquals(0, match.getHomeScore());
+        assertEquals(0, match.getAwayScore());
     }
 }
