@@ -11,4 +11,9 @@ public class Scoreboard {
     public Scoreboard() {
         this.matches = new ArrayList<>();
     }
+
+    public void startMatch(String homeTeam, String awayTeam) {
+        out.printf("Starting match between %s and %s%n", homeTeam, awayTeam);
+        matches.add(new Match(homeTeam, awayTeam));
+    }
 }
