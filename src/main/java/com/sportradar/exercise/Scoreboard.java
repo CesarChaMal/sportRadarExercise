@@ -1,6 +1,7 @@
 package com.sportradar.exercise;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 import static java.lang.System.*;
 
 public class Scoreboard {
-    private List<Match> matches;
+    private final List<Match> matches;
 
     public Scoreboard() {
         this.matches = new ArrayList<>();
@@ -20,6 +21,6 @@ public class Scoreboard {
     }
 
     public List<Match> getSummary() {
-        return matches;
+        return  Collections.unmodifiableList(matches);
     }
 }

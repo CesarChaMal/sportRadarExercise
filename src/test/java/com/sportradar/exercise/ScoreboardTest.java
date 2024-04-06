@@ -16,7 +16,7 @@ public class ScoreboardTest {
     @Test
     public void testStartMatch() {
         scoreboard.startMatch("Home1", "Away1");
-        List<Match> summary = scoreboard.getSummary();
+        var summary = scoreboard.getSummary();
         assertEquals(1, summary.size());
     }
 }
