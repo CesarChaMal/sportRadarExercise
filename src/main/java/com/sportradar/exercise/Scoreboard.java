@@ -26,7 +26,7 @@ public class Scoreboard {
             boolean added = false;
             for (int i = 0; i < sortedMatches.size(); i++) {
                 Match sortedMatch = sortedMatches.get(i);
-                if (currentMatch.getTotalScore() > sortedMatch.getTotalScore() || (currentMatch.getTotalScore() == sortedMatch.getTotalScore() && currentMatch.getCreationTime() > sortedMatch.getCreationTime())) {
+                if (shouldInsertCurrentMatchBeforeSortedMatch(currentMatch, sortedMatch)) {
                     sortedMatches.add(i, currentMatch);
                     added = true;
                     break;
@@ -38,6 +38,27 @@ public class Scoreboard {
         }
 
         return Collections.unmodifiableList(sortedMatches);
+    }
+
+    private boolean isCurrentMatchCreationTimeGreaterThanSortedMatchCreationTime(Match currentMatch, Match sortedMatch) {
+        return currentMatch.getCreationTime() > sortedMatch.getCreationTime();
+    }
+
+    private boolean isCurrentMatchTotalScoreEqualToSortedMatchTotalScore(Match currentMatch, Match sortedMatch) {
+        return currentMatch.getTotalScore() == sortedMatch.getTotalScore();
+    }
+
+    private boolean isCurrentMatchTotalScoreGreaterThanSortedMatchTotalScore(Match currentMatch, Match sortedMatch) {
+        return currentMatch.getTotalScore() > sortedMatch.getTotalScore();
+    }
+
+    private boolean shouldInsertCurrentMatchBeforeSortedMatch(Match currentMatch, Match sortedMatch) {
+        if (isCurrentMatchTotalScoreGreaterThanSortedMatchTotalScore(currentMatch, sortedMatch)) {
+            return true;
+        } else if (isCurrentMatchTotalScoreEqualToSortedMatchTotalScore(currentMatch, sortedMatch) && isCurrentMatchCreationTimeGreaterThanSortedMatchCreationTime(currentMatch, sortedMatch)) {
+            return true;
+        }
+        return false;
     }
 
     public Match getMatch(String homeTeam, String awayT) {
