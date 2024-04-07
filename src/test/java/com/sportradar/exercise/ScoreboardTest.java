@@ -36,4 +36,13 @@ public class ScoreboardTest {
         assertEquals("Home score not updated as expected", 2, match.getHomeScore());
         assertEquals("Away score not updated as expected", 2, match.getAwayScore());
     }
+
+    @Test
+    public void testFinishMatch() {
+        scoreboard.startMatch("Home3", "Away3");
+        Match match = scoreboard.getMatch("Home3", "Away3");
+        scoreboard.finishMatch(match);
+        assertTrue("Match should be finished and removed", scoreboard.getSummary().isEmpty());
+    }
+
 }

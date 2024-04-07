@@ -34,4 +34,8 @@ public class Scoreboard {
     public void updateScore(Match match, int homeScore, int awayScore) {
         match.updateScore(homeScore, awayScore);
     }
+
+    public void finishMatch(Match match) {
+        matches.remove(match);
+    }
 }
