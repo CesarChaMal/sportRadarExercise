@@ -45,4 +45,22 @@ public class ScoreboardTest {
         assertTrue("Match should be finished and removed", scoreboard.getSummary().isEmpty());
     }
 
+    @Test
+    public void testGetSummary() {
+        scoreboard.startMatch("Home1", "Away1");
+        scoreboard.startMatch("Home2", "Away2");
+
+        Match match1 = scoreboard.getMatch("Home1", "Away1");
+        Match match2 = scoreboard.getMatch("Home2", "Away2");
+
+        scoreboard.updateScore(match1, 0, 5);
+        scoreboard.updateScore(match2, 10, 2);
+
+        List<Match> summary = scoreboard.getSummary();
+
+        assertTrue("Summary should contain both matches", summary.size() == 2);
+        assertEquals("The first match should have the higher total score", 12, summary.get(0).getTotalScore());
+        assertEquals("The second match should have the lower total score", 5, summary.get(1).getTotalScore());
+    }
+
 }

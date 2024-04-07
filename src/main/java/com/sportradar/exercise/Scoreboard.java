@@ -18,8 +18,26 @@ public class Scoreboard {
         matches.add(new Match(homeTeam, awayTeam));
     }
 
+    //O(n^2
     public List<Match> getSummary() {
-        return  Collections.unmodifiableList(matches);
+        List<Match> sortedMatches = new ArrayList<>();
+
+        for (Match currentMatch : matches) {
+            boolean added = false;
+            for (int i = 0; i < sortedMatches.size(); i++) {
+                Match sortedMatch = sortedMatches.get(i);
+                if (currentMatch.getTotalScore() > sortedMatch.getTotalScore() || (currentMatch.getTotalScore() == sortedMatch.getTotalScore() && currentMatch.getCreationTime() > sortedMatch.getCreationTime())) {
+                    sortedMatches.add(i, currentMatch);
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) {
+                sortedMatches.add(currentMatch);
+            }
+        }
+
+        return Collections.unmodifiableList(sortedMatches);
     }
 
     public Match getMatch(String homeTeam, String awayT) {
