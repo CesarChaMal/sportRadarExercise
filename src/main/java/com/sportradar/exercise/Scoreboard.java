@@ -2,11 +2,9 @@ package com.sportradar.exercise;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.lang.System.*;
+import static java.lang.System.out;
 
 public class Scoreboard {
     private final List<Match> matches;
@@ -22,5 +20,18 @@ public class Scoreboard {
 
     public List<Match> getSummary() {
         return  Collections.unmodifiableList(matches);
+    }
+
+    public Match getMatch(String homeTeam, String awayT) {
+        for (Match match : matches) {
+            if (match.getHomeTeam().equals(homeTeam) && match.getAwayTeam().equals(awayT)) {
+                return match;
+            }
+        }
+        return null;
+    }
+
+    public void updateScore(Match match, int homeScore, int awayScore) {
+        match.updateScore(homeScore, awayScore);
     }
 }
