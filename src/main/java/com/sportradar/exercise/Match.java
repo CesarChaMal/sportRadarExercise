@@ -3,6 +3,7 @@ package com.sportradar.exercise;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class Match {
     private String homeTeam;
@@ -13,8 +14,8 @@ public class Match {
     private final long creationTime;
 
     public Match(String homeTeam, String awayTeam) {
-        this.homeTeam = homeTeam;
-        this.awayTeam = awayTeam;
+        this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
+        this.awayTeam = Objects.requireNonNull(awayTeam.strip(), "Away team must not be null");
         this.homeScore = 0;
         this.awayScore = 0;
         startTime = System.currentTimeMillis();
@@ -59,15 +60,15 @@ public class Match {
     }
 
     public int getTotalScore() {
-        return homeScore + awayScore;
+        return this.homeScore + this.awayScore;
     }
 
     public long getStartTime() {
-        return startTime;
+        return this.startTime;
     }
 
     public long getCreationTime() {
-        return creationTime;
+        return this.creationTime;
     }
 
     @Override

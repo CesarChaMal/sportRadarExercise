@@ -1,5 +1,6 @@
 package com.sportradar.exercise;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,11 +17,16 @@ public class ScoreboardTest {
         scoreboard = new Scoreboard();
     }
 
+    @After
+    public void tearDown() {
+        scoreboard.getSummary().forEach(scoreboard::finishMatch);
+    }
+
     @Test
     public void testStartMatch() {
         scoreboard.startMatch("Home1", "Away1");
         var summary = scoreboard.getSummary();
-        assertEquals(1, summary.size());
+        assertEquals("Expected exactly 1 match in summary", 1, summary.size());
 
         var match = summary.get(0);
         assertEquals("Home1", match.getHomeTeam());

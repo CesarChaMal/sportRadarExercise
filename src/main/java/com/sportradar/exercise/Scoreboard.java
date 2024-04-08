@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.System.out;
-
 public class Scoreboard {
     private final List<Match> matches;
 
@@ -17,6 +15,14 @@ public class Scoreboard {
 
     public void startMatch(String homeTeam, String awayTeam) {
         matches.add(new Match(homeTeam, awayTeam));
+    }
+
+    public void updateScore(Match match, int homeScore, int awayScore) {
+        match.updateScore(homeScore, awayScore);
+    }
+
+    public void finishMatch(Match match) {
+        matches.remove(match);
     }
 
     //O(n log n
@@ -30,20 +36,10 @@ public class Scoreboard {
         return Collections.unmodifiableList(sortedMatches);
     }
 
-    public Match getMatch(String homeTeam, String awayT) {
-        for (Match match : matches) {
-            if (match.getHomeTeam().equals(homeTeam) && match.getAwayTeam().equals(awayT)) {
-                return match;
-            }
-        }
-        return null;
-    }
-
-    public void updateScore(Match match, int homeScore, int awayScore) {
-        match.updateScore(homeScore, awayScore);
-    }
-
-    public void finishMatch(Match match) {
-        matches.remove(match);
+    public Match getMatch(String homeTeam, String awayTeam) {
+        return matches.stream()
+                .filter(match -> match.getHomeTeam().equals(homeTeam) && match.getAwayTeam().equals(awayTeam))
+                .findFirst()
+                .orElse(null);
     }
 }
