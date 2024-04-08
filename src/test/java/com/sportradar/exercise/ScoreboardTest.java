@@ -64,4 +64,32 @@ public class ScoreboardTest {
         assertEquals("The second match should have the lower total score", 5, summary.get(1).getTotalScore());
     }
 
+    @Test
+    public void testSummaryOrderWithMultipleMatches() {
+        scoreboard.startMatch("Mexico", "Canada");
+        scoreboard.startMatch("Spain", "Brazil");
+        scoreboard.startMatch("Germany", "France");
+        scoreboard.startMatch("Uruguay", "Italy");
+        scoreboard.startMatch("Argentina", "Australia");
+
+        Match mexicoVsCanada = scoreboard.getMatch("Mexico", "Canada");
+        Match spainVsBrazil = scoreboard.getMatch("Spain", "Brazil");
+        Match germanyVsFrance = scoreboard.getMatch("Germany", "France");
+        Match uruguayVsItaly = scoreboard.getMatch("Uruguay", "Italy");
+        Match argentinaVsAustralia = scoreboard.getMatch("Argentina", "Australia");
+
+        scoreboard.updateScore(mexicoVsCanada, 0, 5);
+        scoreboard.updateScore(spainVsBrazil, 10, 2);
+        scoreboard.updateScore(germanyVsFrance, 2, 2);
+        scoreboard.updateScore(uruguayVsItaly, 6, 6);
+        scoreboard.updateScore(argentinaVsAustralia, 3, 1);
+
+        List<Match> summary = scoreboard.getSummary();
+
+        assertEquals("Uruguay vs Italy should be first", "Uruguay", summary.get(0).getHomeTeam());
+        assertEquals("Spain vs Brazil should be second", "Spain", summary.get(1).getHomeTeam());
+        assertEquals("Mexico vs Canada should be third", "Mexico", summary.get(2).getHomeTeam());
+        assertEquals("Argentina vs Australia should be fourth", "Argentina", summary.get(3).getHomeTeam());
+        assertEquals("Germany vs France should be fifth", "Germany", summary.get(4).getHomeTeam());
+    }
 }

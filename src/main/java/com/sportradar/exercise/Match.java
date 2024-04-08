@@ -9,6 +9,7 @@ public class Match {
     private String awayTeam;
     private int homeScore;
     private int awayScore;
+    private final long startTime;
     private final long creationTime;
 
     public Match(String homeTeam, String awayTeam) {
@@ -16,7 +17,8 @@ public class Match {
         this.awayTeam = awayTeam;
         this.homeScore = 0;
         this.awayScore = 0;
-        creationTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
+        creationTime = System.nanoTime();
     }
 
     public String getHomeTeam() {
@@ -67,7 +69,7 @@ public class Match {
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-        String formattedStartTime = formatter.format(Instant.ofEpochMilli(this.creationTime));
+        String formattedStartTime = formatter.format(Instant.ofEpochMilli(this.startTime));
 
         return String.format("Match[%s vs. %s: %d-%d (Start Time: %s)]", homeTeam, awayTeam, homeScore, awayScore, formattedStartTime);
     }
