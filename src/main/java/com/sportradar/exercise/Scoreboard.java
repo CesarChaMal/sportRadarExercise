@@ -1,6 +1,10 @@
 package com.sportradar.exercise;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.System.out;
 
@@ -17,26 +21,13 @@ public class Scoreboard {
 
     //O(n log n
     public List<Match> getSummary() {
-        Comparator<Match> comparator = new Comparator<Match>() {
-            @Override
-            public int compare(Match m1, Match m2) {
-                int scoreCompare = Integer.compare(m2.getTotalScore(), m1.getTotalScore());
-                if (scoreCompare != 0) {
-                    return scoreCompare;
-                }
-                return Long.compare(m2.getCreationTime(), m1.getCreationTime());
-            }
-        };
+        List<Match> sortedMatches;
+        sortedMatches = matches.stream()
+                .sorted(Comparator.comparingInt(Match::getTotalScore).reversed()
+                .thenComparing(Match::getCreationTime, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
 
-        Set<Match> sortedUniqueMatches = new TreeSet<>(comparator);
-
-        for (Match currentMatch : matches)
-            sortedUniqueMatches.add(currentMatch);
-
-        out.println("After sorting:");
-        sortedUniqueMatches.forEach(out::println);
-
-        return Collections.unmodifiableList(new ArrayList<>(sortedUniqueMatches));
+        return Collections.unmodifiableList(sortedMatches);
     }
 
     public Match getMatch(String homeTeam, String awayT) {

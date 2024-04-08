@@ -62,6 +62,10 @@ public class Match {
         return homeScore + awayScore;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
     public long getCreationTime() {
         return creationTime;
     }
