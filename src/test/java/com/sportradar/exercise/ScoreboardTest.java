@@ -2,10 +2,11 @@ package com.sportradar.exercise;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.List;
 
-import static java.lang.System.out;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ScoreboardTest {
     private Scoreboard scoreboard;

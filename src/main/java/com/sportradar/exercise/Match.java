@@ -1,5 +1,9 @@
 package com.sportradar.exercise;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 public class Match {
     private String homeTeam;
     private String awayTeam;
@@ -47,11 +51,6 @@ public class Match {
         this.awayScore = awayScore;
     }
 
-    @Override
-    public String toString() {
-        return String.format("Match[%s vs. %s: %d-%d]", homeTeam, awayTeam, homeScore, awayScore);
-    }
-
     public void updateScore(int homeScore, int awayScore) {
         this.homeScore = homeScore;
         this.awayScore = awayScore;
@@ -63,5 +62,13 @@ public class Match {
 
     public long getCreationTime() {
         return creationTime;
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+        String formattedStartTime = formatter.format(Instant.ofEpochMilli(this.creationTime));
+
+        return String.format("Match[%s vs. %s: %d-%d (Start Time: %s)]", homeTeam, awayTeam, homeScore, awayScore, formattedStartTime);
     }
 }
