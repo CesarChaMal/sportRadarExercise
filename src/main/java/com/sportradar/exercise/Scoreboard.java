@@ -27,13 +27,10 @@ public class Scoreboard {
 
     //O(n log n
     public List<Match> getSummary() {
-        List<Match> sortedMatches;
-        sortedMatches = matches.stream()
+        return Collections.unmodifiableList(matches.stream()
                 .sorted(Comparator.comparingInt(Match::getTotalScore).reversed()
                 .thenComparing(Match::getCreationTime, Comparator.reverseOrder()))
-                .collect(Collectors.toList());
-
-        return Collections.unmodifiableList(sortedMatches);
+                .collect(Collectors.toList()));
     }
 
     public Match getMatch(String homeTeam, String awayTeam) {

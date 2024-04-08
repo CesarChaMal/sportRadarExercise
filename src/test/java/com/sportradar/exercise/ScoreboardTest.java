@@ -4,8 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -63,7 +61,7 @@ public class ScoreboardTest {
         scoreboard.updateScore(match1, 0, 5);
         scoreboard.updateScore(match2, 10, 2);
 
-        List<Match> summary = scoreboard.getSummary();
+        var summary = scoreboard.getSummary();
 
         assertTrue("Summary should contain both matches", summary.size() == 2);
         assertEquals("The first match should have the higher total score", 12, summary.get(0).getTotalScore());
@@ -78,7 +76,7 @@ public class ScoreboardTest {
         getMatch("Uruguay","Italy", 6, 6);
         getMatch("Argentina","Australia", 3, 1);
 
-        List<Match> summary = scoreboard.getSummary();
+        var summary = scoreboard.getSummary();
 
         assertEquals("Uruguay vs Italy should be first", "Uruguay", summary.get(0).getHomeTeam());
         assertEquals("Spain vs Brazil should be second", "Spain", summary.get(1).getHomeTeam());
