@@ -1,5 +1,6 @@
-package com.sportradar.exercise;
+package com.sportradar.exercise.scoring;
 
+import com.sportradar.exercise.match.Match;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

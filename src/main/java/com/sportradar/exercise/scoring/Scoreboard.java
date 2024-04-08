@@ -1,4 +1,6 @@
-package com.sportradar.exercise;
+package com.sportradar.exercise.scoring;
+
+import com.sportradar.exercise.match.Match;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +16,7 @@ public class Scoreboard {
     }
 
     public void startMatch(String homeTeam, String awayTeam) {
-        matches.add(new Match(homeTeam, awayTeam));
+        matches.add(new Match.Builder(homeTeam, awayTeam).build());
     }
 
     public void updateScore(Match match, int homeScore, int awayScore) {
