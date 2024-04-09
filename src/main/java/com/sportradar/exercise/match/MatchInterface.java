@@ -1,16 +1,9 @@
 package com.sportradar.exercise.match;
 
-import com.sportradar.exercise.state.MatchState;
+import com.sportradar.exercise.scoring.Scorable;
+import com.sportradar.exercise.state.StateManageable;
+import com.sportradar.exercise.strategy.MatchStrategy;
+import com.sportradar.exercise.timing.TimedMatch;
 
-public interface MatchInterface {
-    String getHomeTeam();
-    String getAwayTeam();
-    int getHomeScore();
-    int getAwayScore();
-    void updateScore(int homeScore, int awayScore);
-    int getTotalScore();
-    long getStartTime();
-    long getCreationTime();
-    MatchState getState();
-    void setState(MatchState state);
+public interface MatchInterface extends MatchInfo, Scorable, StateManageable, TimedMatch, MatchStrategy {
 }
