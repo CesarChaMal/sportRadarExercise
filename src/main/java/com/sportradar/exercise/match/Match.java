@@ -1,25 +1,32 @@
 package com.sportradar.exercise.match;
 
+import com.sportradar.exercise.observer.Observer;
+import com.sportradar.exercise.observer.Subject;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-public class Match  implements MatchInterface {
+public class Match  implements MatchInterface, Subject {
     private String homeTeam;
     private String awayTeam;
     private int homeScore;
     private int awayScore;
     private final long startTime;
     private final long creationTime;
+    private final Set<Observer> observers;
 
     private Match(Builder builder) {
         this.homeTeam = builder.homeTeam;
         this.awayTeam = builder.awayTeam;
         this.homeScore = builder.homeScore;
         this.awayScore = builder.awayScore;
-        startTime = System.currentTimeMillis();
-        creationTime = System.nanoTime();
+        this.startTime = System.currentTimeMillis();
+        this.creationTime = System.nanoTime();
+        this.observers = new HashSet<>();
     }
 
     public String getHomeTeam() {
@@ -69,6 +76,23 @@ public class Match  implements MatchInterface {
 
     public long getCreationTime() {
         return this.creationTime;
+    }
+
+    @Override
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this);
+        }
     }
 
     public static class Builder {
