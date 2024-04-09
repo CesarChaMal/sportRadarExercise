@@ -5,6 +5,7 @@ import com.sportradar.exercise.observer.Subject;
 import com.sportradar.exercise.state.FinishedState;
 import com.sportradar.exercise.state.MatchState;
 import com.sportradar.exercise.state.NotStartedState;
+import com.sportradar.exercise.strategy.ScoringStrategy;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -22,6 +23,7 @@ public class Match  implements MatchInterface, Subject {
     private final long creationTime;
     private final Set<Observer> observers;
     private MatchState state;
+    private ScoringStrategy scoringStrategy;
 
     private Match(Builder builder) {
         this.homeTeam = builder.homeTeam;
@@ -32,6 +34,7 @@ public class Match  implements MatchInterface, Subject {
         this.creationTime = System.nanoTime();
         this.observers = new HashSet<>();
         this.state = builder.state;
+        this.scoringStrategy = builder.scoringStrategy;
     }
 
     public String getHomeTeam() {
@@ -122,12 +125,21 @@ public class Match  implements MatchInterface, Subject {
         notifyObservers();
     }
 
+    public ScoringStrategy getScoringStrategy() {
+        return scoringStrategy;
+    }
+
+    public void setScoringStrategy(ScoringStrategy strategy) {
+        this.scoringStrategy = strategy;
+    }
+
     public static class Builder {
         private String homeTeam;
         private String awayTeam;
         private int homeScore = 0;
         private int awayScore = 0;
         private MatchState state;
+        private  ScoringStrategy scoringStrategy;
 
         public Builder(String homeTeam, String awayTeam) {
             this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
@@ -149,6 +161,11 @@ public class Match  implements MatchInterface, Subject {
 
         public Builder state(MatchState state) {
             this.state = state;
+            return this;
+        }
+
+        public Builder scoringStrategy(ScoringStrategy strategy) {
+            this.scoringStrategy = strategy;
             return this;
         }
 
