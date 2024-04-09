@@ -1,7 +1,8 @@
 package com.sportradar.exercise.match;
 
+import com.sportradar.exercise.observer.MatchEvent;
+import com.sportradar.exercise.observer.MatchEventNotifier;
 import com.sportradar.exercise.observer.Observer;
-import com.sportradar.exercise.observer.Subject;
 import com.sportradar.exercise.state.FinishedState;
 import com.sportradar.exercise.state.MatchState;
 import com.sportradar.exercise.state.NotStartedState;
@@ -10,18 +11,16 @@ import com.sportradar.exercise.strategy.ScoringStrategy;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
-public class Match  implements MatchInterface, Subject {
+public class Match implements MatchInterface, Comparable<Match> {
     private String homeTeam;
     private String awayTeam;
     private int homeScore;
     private int awayScore;
     private final long startTime;
     private final long creationTime;
-    private final Set<Observer> observers;
+    private MatchEventNotifier<MatchEvent> matchEventNotifier;
     private MatchState state;
     private ScoringStrategy scoringStrategy;
 
@@ -32,7 +31,7 @@ public class Match  implements MatchInterface, Subject {
         this.awayScore = builder.awayScore;
         this.startTime = System.currentTimeMillis();
         this.creationTime = System.nanoTime();
-        this.observers = new HashSet<>();
+        matchEventNotifier = new MatchEventNotifier<>();
         this.state = builder.state;
         this.scoringStrategy = builder.scoringStrategy;
     }
@@ -91,21 +90,17 @@ public class Match  implements MatchInterface, Subject {
         return this.creationTime;
     }
 
-    @Override
     public void registerObserver(Observer o) {
-        observers.add(o);
+        matchEventNotifier.registerObserver(o);
     }
 
-    @Override
     public void removeObserver(Observer o) {
-        observers.remove(o);
+        matchEventNotifier.removeObserver(o);
     }
 
-    @Override
     public void notifyObservers() {
-        for (Observer observer : observers) {
-            observer.update(this);
-        }
+        MatchEvent event = new MatchEvent(this);
+        matchEventNotifier.notifyObservers(event);
     }
 
     @Override
@@ -139,7 +134,7 @@ public class Match  implements MatchInterface, Subject {
         private int homeScore = 0;
         private int awayScore = 0;
         private MatchState state;
-        private  ScoringStrategy scoringStrategy;
+        private ScoringStrategy scoringStrategy;
 
         public Builder(String homeTeam, String awayTeam) {
             this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
@@ -172,6 +167,11 @@ public class Match  implements MatchInterface, Subject {
         public Match build() {
             return new Match(this);
         }
+    }
+
+    @Override
+    public int compareTo(Match other) {
+        return Long.compare(this.startTime, other.startTime);
     }
 
     @Override

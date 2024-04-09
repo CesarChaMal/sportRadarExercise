@@ -1,41 +1,39 @@
 package com.sportradar.exercise.scoring;
 
+import com.sportradar.exercise.analytics.MatchSummaryGenerator;
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.match.MatchInterface;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Scoreboard {
-    private final List<Match> matches;
+    private final List<MatchInterface> matches;
+    private final MatchSummaryGenerator summaryGenerator;
 
     public Scoreboard() {
         this.matches = new ArrayList<>();
+        this.summaryGenerator = new MatchSummaryGenerator();
     }
 
     public void startMatch(String homeTeam, String awayTeam) {
         matches.add(new Match.Builder(homeTeam, awayTeam).build());
     }
 
-    public void updateScore(Match match, int homeScore, int awayScore) {
+    public void updateScore(MatchInterface match, int homeScore, int awayScore) {
         match.updateScore(homeScore, awayScore);
     }
 
-    public void finishMatch(Match match) {
+    public void finishMatch(MatchInterface match) {
         matches.remove(match);
     }
 
     //O(n log n
-    public List<Match> getSummary() {
-        return Collections.unmodifiableList(matches.stream()
-                .sorted(Comparator.comparingInt(Match::getTotalScore).reversed()
-                .thenComparing(Match::getCreationTime, Comparator.reverseOrder()))
-                .collect(Collectors.toList()));
+    public List<MatchInterface> getSummary() {
+        return summaryGenerator.generateSummary(new ArrayList<>(matches));
     }
 
-    public Match getMatch(String homeTeam, String awayTeam) {
+    public MatchInterface getMatch(String homeTeam, String awayTeam) {
         return matches.stream()
                 .filter(match -> match.getHomeTeam().equals(homeTeam) && match.getAwayTeam().equals(awayTeam))
                 .findFirst()

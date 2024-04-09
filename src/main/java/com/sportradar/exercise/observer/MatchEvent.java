@@ -2,7 +2,6 @@ package com.sportradar.exercise.observer;
 
 import com.sportradar.exercise.match.MatchInterface;
 
-/*
 public class MatchEvent {
     private final MatchInterface match;
 
@@ -14,6 +13,3 @@ public class MatchEvent {
         return match;
     }
 }
-*/
-
-public record MatchEvent(MatchInterface match) {}

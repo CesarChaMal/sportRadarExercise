@@ -1,7 +1,9 @@
 package com.sportradar.exercise.scoring;
 
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.match.MatchInterface;
 import com.sportradar.exercise.state.InProgressState;
+import com.sportradar.exercise.state.NotStartedState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +21,11 @@ public class ScoreboardTest {
 
     @After
     public void tearDown() {
-        scoreboard.getSummary().forEach(scoreboard::finishMatch);
+        scoreboard.getSummary().forEach(match -> {
+            if (!(match.getState() instanceof NotStartedState)) {
+                scoreboard.finishMatch(match);
+            }
+        });
     }
 
     @Test
@@ -38,7 +44,7 @@ public class ScoreboardTest {
     @Test
     public void testUpdateScore() {
         scoreboard.startMatch("Home2", "Away2");
-        Match match = scoreboard.getMatch("Home2", "Away2");
+        MatchInterface match = scoreboard.getMatch("Home2", "Away2");
         match.setState(new InProgressState());
         scoreboard.updateScore(match, 2, 2);
         assertEquals("Home score not updated as expected", 2, match.getHomeScore());
@@ -48,7 +54,7 @@ public class ScoreboardTest {
     @Test
     public void testFinishMatch() {
         scoreboard.startMatch("Home3", "Away3");
-        Match match = scoreboard.getMatch("Home3", "Away3");
+        MatchInterface match = scoreboard.getMatch("Home3", "Away3");
         scoreboard.finishMatch(match);
         assertTrue("Match should be finished and removed", scoreboard.getSummary().isEmpty());
     }
@@ -58,10 +64,10 @@ public class ScoreboardTest {
         scoreboard.startMatch("Home1", "Away1");
         scoreboard.startMatch("Home2", "Away2");
 
-        Match match1 = scoreboard.getMatch("Home1", "Away1");
+        MatchInterface match1 = scoreboard.getMatch("Home1", "Away1");
         match1.setState(new InProgressState());
 
-        Match match2 = scoreboard.getMatch("Home2", "Away2");
+        MatchInterface match2 = scoreboard.getMatch("Home2", "Away2");
         match2.setState(new InProgressState());
 
         scoreboard.updateScore(match1, 0, 5);
@@ -93,7 +99,7 @@ public class ScoreboardTest {
 
     private void getMatch(String homeTeam, String awayTeam, int homeScore, int awayScore) {
         scoreboard.startMatch(homeTeam, awayTeam);
-        Match match = scoreboard.getMatch(homeTeam, awayTeam);
+        MatchInterface match = scoreboard.getMatch(homeTeam, awayTeam);
         match.setState(new InProgressState());
         scoreboard.updateScore(match, homeScore, awayScore);
     }

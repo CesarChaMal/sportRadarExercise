@@ -9,37 +9,43 @@ import static org.mockito.Mockito.*;
 
 public class ObserverTest {
 
-    private Observer observer;
+    private MatchEventNotifier<MatchEvent> matchEventNotifier;
+    private Observer<MatchEvent> observer;
     private Match match;
+    private MatchEvent matchEvent;
 
     @Before
     public void setUp() {
-        match = new Match.Builder("Home Team", "Away Team").build();
-        observer = mock(Observer.class);
+        matchEventNotifier = new MatchEventNotifier<>();
+        observer = Mockito.mock(Observer.class);
+        match = Mockito.mock(Match.class);
+        matchEvent = new MatchEvent(match);
     }
 
     @Test
-    public void testRegisterObserverAndNotify() {
-        match.registerObserver(observer);
-        match.notifyObservers();
-        verify(observer, times(1)).update(match);
+    public void testRegisterObserver() {
+        matchEventNotifier.registerObserver(observer);
+        matchEventNotifier.notifyObservers(matchEvent);
+        verify(observer, times(1)).update(matchEvent);
     }
 
     @Test
     public void testRemoveObserver() {
-        match.registerObserver(observer);
-        match.removeObserver(observer);
-        match.notifyObservers();
-        verify(observer, never()).update(match);
+        matchEventNotifier.registerObserver(observer);
+        matchEventNotifier.removeObserver(observer);
+        matchEventNotifier.notifyObservers(matchEvent);
+        verify(observer, never()).update(matchEvent);
     }
 
     @Test
     public void testNotifyObservers() {
-        Observer secondObserver = Mockito.mock(Observer.class);
-        match.registerObserver(observer);
-        match.registerObserver(secondObserver);
-        match.notifyObservers();
-        verify(observer, times(1)).update(match);
-        verify(secondObserver, times(1)).update(match);
+        Observer<MatchEvent> secondObserver = Mockito.mock(Observer.class);
+        matchEventNotifier.registerObserver(observer);
+        matchEventNotifier.registerObserver(secondObserver);
+        
+        matchEventNotifier.notifyObservers(matchEvent);
+        
+        verify(observer, times(1)).update(matchEvent);
+        verify(secondObserver, times(1)).update(matchEvent);
     }
 }

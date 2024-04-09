@@ -15,23 +15,23 @@ public class StrategyTest {
     public void setUp() {
         match = new Match.Builder("Team A", "Team B")
                 .state(new InProgressState())
-                .scoringStrategy(new NormalTimeScoringStrategy())
+                .scoringStrategy(ScoringStrategy.forNormalTime())
                 .build();
     }
 
     @Test
-    public void testExtraTimeScoringStrategy() {
-        match.updateScore(2, 2);
-        ScoringStrategy extraTimeStrategy = new ExtraTimeScoringStrategy();
-        extraTimeStrategy.calculateScore(match, 1, 1);
+    public void testNormalTimeScoringStrategy() {
+        ScoringStrategy normalTimeStrategy = ScoringStrategy.forNormalTime();
+        normalTimeStrategy.calculateScore(match, 3, 3);
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
     }
 
     @Test
-    public void testNormalTimeScoringStrategy() {
-        ScoringStrategy normalTimeStrategy = new NormalTimeScoringStrategy();
-        normalTimeStrategy.calculateScore(match, 3, 3);
+    public void testExtraTimeScoringStrategy() {
+        match.updateScore(2, 2);
+        ScoringStrategy extraTimeStrategy = ScoringStrategy.forExtraTime();
+        extraTimeStrategy.calculateScore(match, 1, 1);
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
     }

@@ -1,7 +1,7 @@
 package com.sportradar.exercise.observer;
 
-public interface Subject {
-    void registerObserver(Observer o);
-    void removeObserver(Observer o);
-    void notifyObservers();
+public interface Subject<T> {
+    void registerObserver(Observer<T> o);
+    void removeObserver(Observer<T> o);
+    void notifyObservers(T event);
 }

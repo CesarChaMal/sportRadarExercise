@@ -18,8 +18,6 @@ public class MatchEventNotifier<T> implements Subject<T> {
 
     @Override
     public void notifyObservers(T event) {
-        for (Observer<T> observer : observers) {
-            observer.update(event);
-        }
+        observers.forEach(observer -> observer.update(event));
     }
 }
