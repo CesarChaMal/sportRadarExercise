@@ -5,11 +5,20 @@ import com.sportradar.exercise.match.Match;
 public interface ScoringStrategy {
     void calculateScore(Match match, int homeScore, int awayScore);
     
-    static ScoringStrategy forNormalTime() {
-        return new NormalTimeScoringStrategy();
+    // Static factory methods
+    static ScoringStrategy forFootballNormalTime() {
+        return new FootballNormalTimeScoringStrategy();
     }
     
-    static ScoringStrategy forExtraTime() {
-        return new ExtraTimeScoringStrategy();
+    static ScoringStrategy forFootballExtraTime() {
+        return new FootballExtraTimeScoringStrategy();
+    }
+    
+    static ScoringStrategy forBasketballNormalTime() {
+        return new BasketballNormalTimeScoringStrategy();
+    }
+
+    static ScoringStrategy forBasketballExtraTime() {
+        return new BasketballExtraTimeScoringStrategy();
     }
 }

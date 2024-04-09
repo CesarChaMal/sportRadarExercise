@@ -1,6 +1,9 @@
 package com.sportradar.exercise.state;
 
+import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
+import com.sportradar.exercise.abstract_factory.MatchFactory;
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.strategy.ScoringStrategy;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,11 +13,14 @@ import static org.junit.Assert.assertTrue;
 public class StateTest {
 
     private Match match;
+    private MatchFactory matchFactory;
 
     @Before
     public void setUp() {
-        match = new Match.Builder("Team A", "Team B")
+        matchFactory = new FootballMatchFactory();
+        match = matchFactory.createMatchBuilder("Team A", "Team B")
                 .state(new NotStartedState())
+                .scoringStrategy(ScoringStrategy.forFootballNormalTime())
                 .build();
     }
 

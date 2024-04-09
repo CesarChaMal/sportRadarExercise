@@ -2,7 +2,7 @@ package com.sportradar.exercise.strategy;
 
 import com.sportradar.exercise.match.Match;
 
-public class ExtraTimeScoringStrategy implements ScoringStrategy, ScoreApplier {
+public class FootballExtraTimeScoringStrategy implements ScoringStrategy, ScoreApplier {
     @Override
     public void calculateScore(Match match, int homeScore, int awayScore) {
         int currentHomeScore = match.getHomeScore();
