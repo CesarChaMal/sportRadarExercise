@@ -2,6 +2,9 @@ package com.sportradar.exercise.match;
 
 import com.sportradar.exercise.observer.Observer;
 import com.sportradar.exercise.observer.Subject;
+import com.sportradar.exercise.state.FinishedState;
+import com.sportradar.exercise.state.MatchState;
+import com.sportradar.exercise.state.NotStartedState;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -18,6 +21,7 @@ public class Match  implements MatchInterface, Subject {
     private final long startTime;
     private final long creationTime;
     private final Set<Observer> observers;
+    private MatchState state;
 
     private Match(Builder builder) {
         this.homeTeam = builder.homeTeam;
@@ -27,6 +31,7 @@ public class Match  implements MatchInterface, Subject {
         this.startTime = System.currentTimeMillis();
         this.creationTime = System.nanoTime();
         this.observers = new HashSet<>();
+        this.state = builder.state;
     }
 
     public String getHomeTeam() {
@@ -62,8 +67,13 @@ public class Match  implements MatchInterface, Subject {
     }
 
     public void updateScore(int homeScore, int awayScore) {
-        this.homeScore = homeScore;
-        this.awayScore = awayScore;
+        if (this.state.canUpdateScore()) {
+            this.homeScore = homeScore;
+            this.awayScore = awayScore;
+            notifyObservers();
+        } else {
+            throw new UnsupportedOperationException("Score update not allowed in the current state: " + this.state.getClass().getSimpleName());
+        }
     }
 
     public int getTotalScore() {
@@ -95,15 +105,34 @@ public class Match  implements MatchInterface, Subject {
         }
     }
 
+    @Override
+    public MatchState getState() {
+        return this.state ;
+    }
+
+    @Override
+    public void setState(MatchState newState) {
+        if (this.state instanceof FinishedState && newState instanceof FinishedState) {
+            throw new UnsupportedOperationException("Cannot finish an already finished match.");
+        }
+        if (this.state instanceof NotStartedState && newState instanceof FinishedState) {
+            throw new UnsupportedOperationException("Cannot finish a match that hasn't started.");
+        }
+        this.state = newState;
+        notifyObservers();
+    }
+
     public static class Builder {
         private String homeTeam;
         private String awayTeam;
         private int homeScore = 0;
         private int awayScore = 0;
+        private MatchState state;
 
         public Builder(String homeTeam, String awayTeam) {
             this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
             this.awayTeam = Objects.requireNonNull(awayTeam.strip(), "Away team must not be null");
+            this.state = new NotStartedState();
         }
 
         public Builder homeScore(int value) {
@@ -115,6 +144,11 @@ public class Match  implements MatchInterface, Subject {
         public Builder awayScore(int value) {
             if (value < 0) throw new IllegalArgumentException("Score must be non-negative");
             this.awayScore = value;
+            return this;
+        }
+
+        public Builder state(MatchState state) {
+            this.state = state;
             return this;
         }
 

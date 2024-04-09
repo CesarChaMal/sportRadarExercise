@@ -1,5 +1,7 @@
 package com.sportradar.exercise.match;
 
+import com.sportradar.exercise.state.MatchState;
+
 public interface MatchInterface {
     String getHomeTeam();
     String getAwayTeam();
@@ -9,4 +11,6 @@ public interface MatchInterface {
     int getTotalScore();
     long getStartTime();
     long getCreationTime();
+    MatchState getState();
+    void setState(MatchState state);
 }
