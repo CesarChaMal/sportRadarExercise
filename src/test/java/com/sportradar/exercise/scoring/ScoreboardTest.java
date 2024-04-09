@@ -1,6 +1,7 @@
 package com.sportradar.exercise.scoring;
 
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.state.InProgressState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,7 @@ public class ScoreboardTest {
     public void testUpdateScore() {
         scoreboard.startMatch("Home2", "Away2");
         Match match = scoreboard.getMatch("Home2", "Away2");
+        match.setState(new InProgressState());
         scoreboard.updateScore(match, 2, 2);
         assertEquals("Home score not updated as expected", 2, match.getHomeScore());
         assertEquals("Away score not updated as expected", 2, match.getAwayScore());
@@ -57,7 +59,10 @@ public class ScoreboardTest {
         scoreboard.startMatch("Home2", "Away2");
 
         Match match1 = scoreboard.getMatch("Home1", "Away1");
+        match1.setState(new InProgressState());
+
         Match match2 = scoreboard.getMatch("Home2", "Away2");
+        match2.setState(new InProgressState());
 
         scoreboard.updateScore(match1, 0, 5);
         scoreboard.updateScore(match2, 10, 2);
@@ -89,6 +94,7 @@ public class ScoreboardTest {
     private void getMatch(String homeTeam, String awayTeam, int homeScore, int awayScore) {
         scoreboard.startMatch(homeTeam, awayTeam);
         Match match = scoreboard.getMatch(homeTeam, awayTeam);
+        match.setState(new InProgressState());
         scoreboard.updateScore(match, homeScore, awayScore);
     }
 }
