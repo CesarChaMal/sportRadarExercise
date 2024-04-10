@@ -3,9 +3,10 @@ package com.sportradar.exercise.match;
 import com.sportradar.exercise.observer.MatchEvent;
 import com.sportradar.exercise.observer.MatchEventNotifier;
 import com.sportradar.exercise.observer.Observer;
-import com.sportradar.exercise.state.FinishedState;
 import com.sportradar.exercise.state.MatchState;
+import com.sportradar.exercise.state.MatchStateManager;
 import com.sportradar.exercise.state.NotStartedState;
+import com.sportradar.exercise.strategy.DefaultScoringStrategy;
 import com.sportradar.exercise.strategy.ScoringStrategy;
 
 import java.time.Instant;
@@ -14,14 +15,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Match implements MatchInterface, Comparable<Match> {
-    private String homeTeam;
-    private String awayTeam;
+    private final String homeTeam;
+    private final String awayTeam;
     private int homeScore;
     private int awayScore;
     private final long startTime;
     private final long creationTime;
     private MatchEventNotifier<MatchEvent> matchEventNotifier;
-    private MatchState state;
+    private final MatchStateManager stateManager;
     private ScoringStrategy scoringStrategy;
 
     private Match(Builder builder) {
@@ -32,7 +33,7 @@ public class Match implements MatchInterface, Comparable<Match> {
         this.startTime = System.currentTimeMillis();
         this.creationTime = System.nanoTime();
         matchEventNotifier = new MatchEventNotifier<>();
-        this.state = builder.state;
+        this.stateManager = new MatchStateManager(this, builder.state);
         this.scoringStrategy = builder.scoringStrategy;
     }
 
@@ -44,14 +45,6 @@ public class Match implements MatchInterface, Comparable<Match> {
         return awayTeam;
     }
 
-    public void setHomeTeam(String homeTeam) {
-        this.homeTeam = homeTeam;
-    }
-
-    public void setAwayTeam(String awayTeam) {
-        this.awayTeam = awayTeam;
-    }
-
     public int getHomeScore() {
         return homeScore;
     }
@@ -61,21 +54,18 @@ public class Match implements MatchInterface, Comparable<Match> {
     }
 
     public void setHomeScore(int homeScore) {
+        if (homeScore < 0) throw new IllegalArgumentException("Score must be non-negative");
         this.homeScore = homeScore;
     }
 
     public void setAwayScore(int awayScore) {
+        if (awayScore < 0) throw new IllegalArgumentException("Score must be non-negative");
         this.awayScore = awayScore;
     }
 
+    @Override
     public void updateScore(int homeScore, int awayScore) {
-        if (this.state.canUpdateScore()) {
-            this.homeScore = homeScore;
-            this.awayScore = awayScore;
-            notifyObservers();
-        } else {
-            throw new UnsupportedOperationException("Score update not allowed in the current state: " + this.state.getClass().getSimpleName());
-        }
+        this.stateManager.handleScoreUpdate(homeScore, awayScore);
     }
 
     public int getTotalScore() {
@@ -105,19 +95,13 @@ public class Match implements MatchInterface, Comparable<Match> {
 
     @Override
     public MatchState getState() {
-        return this.state ;
+        return this.stateManager.getCurrentState();
     }
 
     @Override
     public void setState(MatchState newState) {
-        if (this.state instanceof FinishedState && newState instanceof FinishedState) {
-            throw new UnsupportedOperationException("Cannot finish an already finished match.");
-        }
-        if (this.state instanceof NotStartedState && newState instanceof FinishedState) {
-            throw new UnsupportedOperationException("Cannot finish a match that hasn't started.");
-        }
-        this.state = newState;
-        notifyObservers();
+        this.stateManager.transitionState(newState);
+        this.notifyObservers();
     }
 
     public ScoringStrategy getScoringStrategy() {
@@ -140,6 +124,7 @@ public class Match implements MatchInterface, Comparable<Match> {
             this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
             this.awayTeam = Objects.requireNonNull(awayTeam.strip(), "Away team must not be null");
             this.state = new NotStartedState();
+            this.scoringStrategy = new DefaultScoringStrategy();
         }
 
         public Builder homeScore(int value) {

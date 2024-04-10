@@ -1,5 +1,8 @@
 package com.sportradar.exercise.match;
 
+import com.sportradar.exercise.state.NotStartedState;
+import com.sportradar.exercise.strategy.FootballNormalTimeScoringStrategy;
+import com.sportradar.exercise.strategy.ScoringStrategy;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,5 +37,18 @@ public class BuilderTest {
         Match match = builder.homeScore(1).awayScore(2).build();
         assertEquals("Home score should be set to 1", 1, match.getHomeScore());
         assertEquals("Away score should be set to 2", 2, match.getAwayScore());
+    }
+
+    @Test
+    public void testBuilderSetsNotStartedStateByDefault() {
+        Match match = builder.build();
+        assertTrue("Match state should be NotStartedState by default", match.getState() instanceof NotStartedState);
+    }
+
+    @Test
+    public void testBuilderAppliesCustomScoringStrategy() {
+        ScoringStrategy customStrategy = new FootballNormalTimeScoringStrategy();
+        Match match = builder.scoringStrategy(customStrategy).build();
+        assertEquals("Custom scoring strategy should be applied", customStrategy, match.getScoringStrategy());
     }
 }

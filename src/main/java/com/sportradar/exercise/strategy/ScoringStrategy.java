@@ -4,8 +4,11 @@ import com.sportradar.exercise.match.Match;
 
 public interface ScoringStrategy {
     void calculateScore(Match match, int homeScore, int awayScore);
-    
-    // Static factory methods
+
+    static ScoringStrategy forDefaultScoringStrategy() {
+        return new DefaultScoringStrategy();
+    }
+
     static ScoringStrategy forFootballNormalTime() {
         return new FootballNormalTimeScoringStrategy();
     }

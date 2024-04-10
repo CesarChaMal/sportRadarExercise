@@ -2,10 +2,10 @@ package com.sportradar.exercise.state;
 
 import com.sportradar.exercise.match.Match;
 
-public class InProgressState implements MatchState {
+public final class InProgressState implements MatchState {
     @Override
-    public void updateScore(Match match, int homeScore, int awayScore) {
-        match.updateScore(homeScore, awayScore);
+    public void startMatch(Match match) {
+        throw new UnsupportedOperationException("Match is already started.");
     }
 
     @Override

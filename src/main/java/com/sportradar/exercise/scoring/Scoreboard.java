@@ -24,9 +24,15 @@ public class Scoreboard {
         match.updateScore(homeScore, awayScore);
     }
 
+    public void addMatch(MatchInterface match) {
+        matches.add(match);
+    }
+
     public void finishMatch(MatchInterface match) {
         matches.remove(match);
     }
+
+	
 
     //O(n log n
     public List<MatchInterface> getSummary() {

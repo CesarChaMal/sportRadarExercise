@@ -34,13 +34,12 @@ public class StateTest {
     public void testInProgressStateAllowsScoreUpdate() {
         match.setState(new InProgressState());
         match.updateScore(1, 0);
-        assertEquals(1, match.getHomeScore());
-        assertEquals(0, match.getAwayScore());
+        assertEquals("Home score should be updated", 1, match.getHomeScore());
+        assertEquals("Away score should remain unchanged", 0, match.getAwayScore());
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testNotStartedStateBlocksScoreUpdate() {
-        match.setState(new NotStartedState());
         match.updateScore(1, 0);
         assertEquals("Home score should be 1", 1, match.getHomeScore());
         assertEquals("Away score should be 0", 0, match.getAwayScore());
@@ -50,7 +49,7 @@ public class StateTest {
     public void testInProgressStateFinishMatch() {
         match.setState(new InProgressState());
         match.setState(new FinishedState());
-        assertTrue(match.getState() instanceof FinishedState);
+        assertTrue("Match should be in FinishedState", match.getState() instanceof FinishedState);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -61,7 +60,6 @@ public class StateTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testNotStartedStateBlocksFinishingMatch() {
-        match.setState(new NotStartedState());
         match.setState(new FinishedState());
     }
 }

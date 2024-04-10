@@ -1,9 +1,12 @@
 package com.sportradar.exercise.scoring;
 
+import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
+import com.sportradar.exercise.abstract_factory.MatchFactory;
 import com.sportradar.exercise.match.Match;
 import com.sportradar.exercise.match.MatchInterface;
 import com.sportradar.exercise.state.InProgressState;
 import com.sportradar.exercise.state.NotStartedState;
+import com.sportradar.exercise.strategy.ScoringStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,10 +16,12 @@ import static org.junit.Assert.assertTrue;
 
 public class ScoreboardTest {
     private Scoreboard scoreboard;
+    private MatchFactory matchFactory;
 
     @Before
     public void setUp() {
         scoreboard = new Scoreboard();
+        matchFactory = new FootballMatchFactory();
     }
 
     @After
@@ -26,6 +31,18 @@ public class ScoreboardTest {
                 scoreboard.finishMatch(match);
             }
         });
+    }
+
+    @Test
+    public void testCreateMatch() {
+        MatchInterface match = matchFactory.createMatchBuilder("Home1", "Away1").scoringStrategy(ScoringStrategy.forBasketballNormalTime()).build();
+        scoreboard.addMatch(match);
+        var summary = scoreboard.getSummary();
+        assertEquals("Expected exactly 1 match in summary", 1, summary.size());
+        assertEquals("Home1", summary.get(0).getHomeTeam());
+        assertEquals("Away1", summary.get(0).getAwayTeam());
+        assertEquals(0, summary.get(0).getHomeScore());
+        assertEquals(0, summary.get(0).getAwayScore());
     }
 
     @Test
