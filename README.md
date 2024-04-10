@@ -96,27 +96,33 @@ MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Awa
                                             .scoringStrategyMode(ScoringStrategyMode.CLASSIC) 
                                             .scoringStrategy(ScoringStrategy.forFootballNormalTime())
                                             .build();
+scoreboard.addMatch(match);
 
 // Start a match using the first functional strategy approach
 MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
                                             .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL1) 
                                             .scoringStrategyFunctional1(ScoringStrategiesFunctional1.footballNormalTimeScoringStrategy)
                                             .build();
+scoreboard.addMatch(match);
 
 // Start a match using the second functional strategy approach with enums
 MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
                                             .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL2) 
                                             .scoringStrategyFunctional2(ScoringStrategyType.FOOTBALL_NORMAL_TIME)
                                             .build();
+scoreboard.addMatch(match);
+
+// Switch to extra time scoring strategy for a match using the classic strategy
+matchClassic.setScoringStrategy(ScoringStrategy.forFootballExtraTime());
+
+// For functional strategy 1
+matchFunctional1.setScoringStrategyFunctional1(ScoringStrategiesFunctional1.footballExtraTimeScoringStrategy);
+
+// For functional strategy 2
+matchFunctional2.setScoringStrategyFunctional2(ScoringStrategyType.FOOTBALL_EXTRA_TIME);
 
 // Updating score with the default scoring strategy
 scoreboard.updateScore(match, 1, 0);
-
-// Switching to a different scoring strategy during the match
-match.setScoringStrategy(ScoringStrategies.footballExtraTimeScoringStrategy);
-
-// Changing the scoring strategy mode to FUNCTIONAL2
-match.setScoringStrategyMode(ScoringStrategyMode.FUNCTIONAL2);
 
 // Finishing a match and removing it from the active scoreboard
 scoreboard.finishMatch(match);
