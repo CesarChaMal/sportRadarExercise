@@ -78,21 +78,30 @@ You can start a match by directly creating a `Match` object with a factory or by
 Scoreboard scoreboard = new Scoreboard();
 MatchFactory footballMatchFactory = new FootballMatchFactory();
 
-// Using factory to create and start a match with the default scoring strategy
+// Starting a match with the default scoring strategy using the factory
 MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team").build();
 scoreboard.addMatch(match);
+
+// Starting a match with a specific scoring strategy using the scoreboard
+scoreboard.startMatch("Home Team", "Away Team", ScoringStrategies.footballNormalTimeScoringStrategy);
+
+// Alternatively, start a match with a scoring strategy mode for more flexibility
+scoreboard.startMatchWithStrategyMode("Home Team", "Away Team", ScoringStrategyMode.FUNCTIONAL1);
 
 // Or start a match using scoreboard with a specific scoring strategy
 scoreboard.startMatch("Home Team", "Away Team", ScoringStrategies.footballNormalTimeScoringStrategy);
 
-// Updating score with default or specified scoring strategy
+// Updating score with the default scoring strategy
 scoreboard.updateScore(match, 1, 0);
 
-// Switching to extra time scoring strategy
+// Switching to a different scoring strategy during the match
 match.setScoringStrategy(ScoringStrategies.footballExtraTimeScoringStrategy);
 
-// Finishing a match
+// Changing the scoring strategy mode to FUNCTIONAL2
+match.setScoringStrategyMode(ScoringStrategyMode.FUNCTIONAL2);
+
+// Finishing a match and removing it from the active scoreboard
 scoreboard.finishMatch(match);
 
-// Getting summary of matches
+// Retrieving a summary of ongoing matches, sorted by total score and start time
 List<MatchInterface> summary = scoreboard.getSummary();
