@@ -85,11 +85,29 @@ scoreboard.addMatch(match);
 // Starting a match with a specific scoring strategy using the scoreboard
 scoreboard.startMatch("Home Team", "Away Team", ScoringStrategies.footballNormalTimeScoringStrategy);
 
-// Alternatively, start a match with a scoring strategy mode for more flexibility
-scoreboard.startMatchWithStrategyMode("Home Team", "Away Team", ScoringStrategyMode.FUNCTIONAL1);
+// Starting a match with a specific strategy mode
+MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+                                            .scoringStrategyMode(ScoringStrategyMode.CLASSIC) // or FUNCTIONAL1, FUNCTIONAL2
+                                            .build();
 
-// Or start a match using scoreboard with a specific scoring strategy
-scoreboard.startMatch("Home Team", "Away Team", ScoringStrategies.footballNormalTimeScoringStrategy);
+// Start a match using the classic strategy pattern
+MatchFactory footballMatchFactory = new FootballMatchFactory();
+MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+                                            .scoringStrategyMode(ScoringStrategyMode.CLASSIC) 
+                                            .scoringStrategy(ScoringStrategy.forFootballNormalTime())
+                                            .build();
+
+// Start a match using the first functional strategy approach
+MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+                                            .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL1) 
+                                            .scoringStrategyFunctional1(ScoringStrategiesFunctional1.footballNormalTimeScoringStrategy)
+                                            .build();
+
+// Start a match using the second functional strategy approach with enums
+MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+                                            .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL2) 
+                                            .scoringStrategyFunctional2(ScoringStrategyType.FOOTBALL_NORMAL_TIME)
+                                            .build();
 
 // Updating score with the default scoring strategy
 scoreboard.updateScore(match, 1, 0);
