@@ -5,14 +5,16 @@ import com.sportradar.exercise.observer.MatchEventNotifier;
 import com.sportradar.exercise.observer.Observer;
 import com.sportradar.exercise.state.MatchState;
 import com.sportradar.exercise.state.MatchStateManager;
-import com.sportradar.exercise.state.NotStartedState;
-import com.sportradar.exercise.strategy.DefaultScoringStrategy;
 import com.sportradar.exercise.strategy.ScoringStrategy;
+import com.sportradar.exercise.strategy.ScoringStrategyMode;
+import com.sportradar.exercise.strategy_functionall1.ScoringStrategiesFunctional1;
+import com.sportradar.exercise.strategy_functionall2.ScoringStrategyType;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 public class Match implements MatchInterface, Comparable<Match> {
     private final String homeTeam;
@@ -24,6 +26,9 @@ public class Match implements MatchInterface, Comparable<Match> {
     private MatchEventNotifier<MatchEvent> matchEventNotifier;
     private final MatchStateManager stateManager;
     private ScoringStrategy scoringStrategy;
+    private BiConsumer<Match, int[]> scoringStrategyFunctional1;
+    private ScoringStrategyType scoringStrategyFunctional2;
+    private ScoringStrategyMode currentStrategyMode = ScoringStrategyMode.CLASSIC;
 
     private Match(Builder builder) {
         this.homeTeam = builder.homeTeam;
@@ -35,6 +40,8 @@ public class Match implements MatchInterface, Comparable<Match> {
         matchEventNotifier = new MatchEventNotifier<>();
         this.stateManager = new MatchStateManager(this, builder.state);
         this.scoringStrategy = builder.scoringStrategy;
+        this.scoringStrategyFunctional1 = builder.scoringStrategyFunctional1;
+        this.scoringStrategyFunctional2 = builder.scoringStrategyFunctional2;
     }
 
     public String getHomeTeam() {
@@ -105,11 +112,55 @@ public class Match implements MatchInterface, Comparable<Match> {
     }
 
     public ScoringStrategy getScoringStrategy() {
-        return scoringStrategy;
+        return this.scoringStrategy;
+    }
+
+    public BiConsumer<Match, int[]> getScoringStrategyFunctional1() {
+        return this.scoringStrategyFunctional1;
+    }
+
+    public ScoringStrategyType getScoringStrategyFunctional2() {
+        return this.scoringStrategyFunctional2;
     }
 
     public void setScoringStrategy(ScoringStrategy strategy) {
-        this.scoringStrategy = strategy;
+        Objects.requireNonNull(strategy, "Scoring strategy must not be null");
+        if (currentStrategyMode == ScoringStrategyMode.CLASSIC) {
+            this.scoringStrategy = strategy;
+            this.notifyObservers();
+        } else {
+            throw new IllegalArgumentException("Scoring strategy must be of type ScoringStrategy");
+        }
+    }
+
+    public void setScoringStrategyFunctional1(BiConsumer<Match, int[]> strategy) {
+        Objects.requireNonNull(strategy, "Scoring strategy must not be null");
+        if (currentStrategyMode == ScoringStrategyMode.FUNCTIONAL1) {
+            this.scoringStrategyFunctional1 = strategy;
+            this.notifyObservers();
+        } else {
+            throw new IllegalArgumentException("Scoring strategy must be of type BiConsumer<Match, int[]>");
+        }
+    }
+
+    @Override
+    public void setScoringStrategyFunctional2(ScoringStrategyType strategy) {
+        Objects.requireNonNull(strategy, "Scoring strategy must not be null");
+        if (currentStrategyMode == ScoringStrategyMode.FUNCTIONAL2) {
+            this.scoringStrategyFunctional2 = strategy;
+            this.notifyObservers();
+        } else {
+            throw new IllegalArgumentException("Scoring strategy must be of type ScoringStrategyType");
+        }
+    }
+
+    public ScoringStrategyMode getCurrentStrategyMode() {
+        return currentStrategyMode;
+    }
+
+
+    public void setCurrentStrategyMode(ScoringStrategyMode mode) {
+        this.currentStrategyMode = mode;
     }
 
     public static class Builder {
@@ -119,12 +170,17 @@ public class Match implements MatchInterface, Comparable<Match> {
         private int awayScore = 0;
         private MatchState state;
         private ScoringStrategy scoringStrategy;
+        private BiConsumer<Match, int[]> scoringStrategyFunctional1;
+        private ScoringStrategyType scoringStrategyFunctional2 = ScoringStrategyType.DEFAULT;
+        private ScoringStrategyMode strategyMode = ScoringStrategyMode.CLASSIC;
+        private boolean isScoringStrategyModeSet = false;
 
         public Builder(String homeTeam, String awayTeam) {
             this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
             this.awayTeam = Objects.requireNonNull(awayTeam.strip(), "Away team must not be null");
-            this.state = new NotStartedState();
-            this.scoringStrategy = new DefaultScoringStrategy();
+            this.state = MatchState.forNotStartedState();
+            this.scoringStrategy = ScoringStrategy.forDefaultScoringStrategy();
+            this.scoringStrategyFunctional1 = ScoringStrategiesFunctional1.defaultScoringStrategy;
         }
 
         public Builder homeScore(int value) {
@@ -145,12 +201,49 @@ public class Match implements MatchInterface, Comparable<Match> {
         }
 
         public Builder scoringStrategy(ScoringStrategy strategy) {
-            this.scoringStrategy = strategy;
+            if (strategyMode == ScoringStrategyMode.CLASSIC) {
+                this.scoringStrategy = strategy;
+            } else {
+                throw new IllegalArgumentException("Scoring strategy must be of type ScoringStrategy");
+            }
             return this;
         }
 
+        public Builder scoringStrategyFunctional1(BiConsumer<Match, int[]> strategy) {
+            if (strategyMode == ScoringStrategyMode.FUNCTIONAL1) {
+                this.scoringStrategyFunctional1 = strategy;
+            } else {
+                throw new IllegalArgumentException("Scoring strategy must be of type BiConsumer<Match, int[]>");
+            }
+            return this;
+        }
+
+        public Builder scoringStrategyFunctional2(ScoringStrategyType strategyType) {
+            if (strategyMode == ScoringStrategyMode.FUNCTIONAL2) {
+                this.scoringStrategyFunctional2 = strategyType;
+            } else {
+                throw new IllegalArgumentException("Scoring strategy must be of type ScoringStrategyType");
+            }
+            return this;
+        }
+
+        public Builder scoringStrategyMode(ScoringStrategyMode strategyMode) {
+            ensureSingleStrategy();
+            this.strategyMode = strategyMode;
+            isScoringStrategyModeSet = true;
+            return this;
+        }
+
+        private void ensureSingleStrategy() {
+            if (isScoringStrategyModeSet) {
+                throw new IllegalStateException("A scoring strategy mode has already been set.");
+            }
+        }
+
         public Match build() {
-            return new Match(this);
+            Match match = new Match(this);
+            match.setCurrentStrategyMode(strategyMode);
+            return match;
         }
     }
 

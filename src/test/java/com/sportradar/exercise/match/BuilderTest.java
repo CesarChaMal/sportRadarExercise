@@ -1,10 +1,13 @@
 package com.sportradar.exercise.match;
 
 import com.sportradar.exercise.state.NotStartedState;
-import com.sportradar.exercise.strategy.FootballNormalTimeScoringStrategy;
 import com.sportradar.exercise.strategy.ScoringStrategy;
+import com.sportradar.exercise.strategy.ScoringStrategyMode;
+import com.sportradar.exercise.strategy_functionall1.ScoringStrategiesFunctional1;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.function.BiConsumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +18,9 @@ public class BuilderTest {
 
     @Before
     public void setUp() {
-        builder = new Match.Builder("Team A", "Team B");
+        builder = new Match.Builder("Team A", "Team B")
+                .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
+                .scoringStrategy(ScoringStrategy.forFootballNormalTime());
     }
 
     @Test
@@ -47,7 +52,7 @@ public class BuilderTest {
 
     @Test
     public void testBuilderAppliesCustomScoringStrategy() {
-        ScoringStrategy customStrategy = new FootballNormalTimeScoringStrategy();
+        ScoringStrategy customStrategy = ScoringStrategy.forFootballNormalTime();
         Match match = builder.scoringStrategy(customStrategy).build();
         assertEquals("Custom scoring strategy should be applied", customStrategy, match.getScoringStrategy());
     }

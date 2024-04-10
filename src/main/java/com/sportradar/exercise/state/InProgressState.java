@@ -10,7 +10,7 @@ public final class InProgressState implements MatchState {
 
     @Override
     public void finishMatch(Match match) {
-        match.setState(new FinishedState());
+        match.setState(MatchState.forFinishedState());
     }
 
     @Override

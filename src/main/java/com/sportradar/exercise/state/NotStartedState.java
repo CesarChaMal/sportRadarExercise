@@ -5,7 +5,7 @@ import com.sportradar.exercise.match.Match;
 public final class NotStartedState implements MatchState {
     @Override
     public void startMatch(Match match) {
-        match.setState(new InProgressState());
+        match.setState(MatchState.forInProgressState());
     }
 
     @Override

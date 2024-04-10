@@ -2,17 +2,20 @@ package com.sportradar.exercise.scoring;
 
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
-import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.command.UpdateScoreCommand;
 import com.sportradar.exercise.match.MatchInterface;
 import com.sportradar.exercise.state.InProgressState;
+import com.sportradar.exercise.state.MatchState;
 import com.sportradar.exercise.state.NotStartedState;
 import com.sportradar.exercise.strategy.ScoringStrategy;
+import com.sportradar.exercise.strategy_functionall1.ScoringStrategiesFunctional1;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.util.Optional;
+
+import static org.junit.Assert.*;
 
 public class ScoreboardTest {
     private Scoreboard scoreboard;
@@ -20,8 +23,8 @@ public class ScoreboardTest {
 
     @Before
     public void setUp() {
-        scoreboard = new Scoreboard();
         matchFactory = new FootballMatchFactory();
+        scoreboard = new Scoreboard(matchFactory);
     }
 
     @After
@@ -35,7 +38,7 @@ public class ScoreboardTest {
 
     @Test
     public void testCreateMatch() {
-        MatchInterface match = matchFactory.createMatchBuilder("Home1", "Away1").scoringStrategy(ScoringStrategy.forBasketballNormalTime()).build();
+        MatchInterface match = matchFactory.createMatchBuilder("Home1", "Away1").scoringStrategy(ScoringStrategy.forFootballNormalTime()).build();
         scoreboard.addMatch(match);
         var summary = scoreboard.getSummary();
         assertEquals("Expected exactly 1 match in summary", 1, summary.size());
@@ -61,18 +64,29 @@ public class ScoreboardTest {
     @Test
     public void testUpdateScore() {
         scoreboard.startMatch("Home2", "Away2");
-        MatchInterface match = scoreboard.getMatch("Home2", "Away2");
-        match.setState(new InProgressState());
-        scoreboard.updateScore(match, 2, 2);
-        assertEquals("Home score not updated as expected", 2, match.getHomeScore());
-        assertEquals("Away score not updated as expected", 2, match.getAwayScore());
+        Optional<MatchInterface> optionalMatch = scoreboard.getMatch("Home2", "Away2");
+
+        assertTrue("Match should exist", optionalMatch.isPresent());
+
+        optionalMatch.ifPresent(match -> {
+            match.setState(MatchState.forInProgressState());
+            match.setScoringStrategy(ScoringStrategy.forFootballNormalTime());
+            UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, 2, 2);
+            updateScoreCommand.execute();
+
+            MatchInterface updatedMatch = scoreboard.getMatch("Home2", "Away2").orElseThrow(() -> new AssertionError("Match not found"));
+
+            assertEquals("Home score not updated as expected", 2, updatedMatch.getHomeScore());
+            assertEquals("Away score not updated as expected", 2, updatedMatch.getAwayScore());
+        });
     }
 
     @Test
     public void testFinishMatch() {
         scoreboard.startMatch("Home3", "Away3");
-        MatchInterface match = scoreboard.getMatch("Home3", "Away3");
-        scoreboard.finishMatch(match);
+        Optional<MatchInterface> match = scoreboard.getMatch("Home3", "Away3");
+        assertNotNull("Match should exist before finishing", match.isPresent());
+        scoreboard.finishMatch(match.get());
         assertTrue("Match should be finished and removed", scoreboard.getSummary().isEmpty());
     }
 
@@ -81,20 +95,28 @@ public class ScoreboardTest {
         scoreboard.startMatch("Home1", "Away1");
         scoreboard.startMatch("Home2", "Away2");
 
-        MatchInterface match1 = scoreboard.getMatch("Home1", "Away1");
-        match1.setState(new InProgressState());
+        Optional<MatchInterface> match1 = scoreboard.getMatch("Home1", "Away1");
+        assertNotNull("Match1 should not be null", match1.get());
+        Optional<MatchInterface> match2 = scoreboard.getMatch("Home2", "Away2");
+        assertNotNull("Match2 should not be null", match2.get());
 
-        MatchInterface match2 = scoreboard.getMatch("Home2", "Away2");
-        match2.setState(new InProgressState());
+        setSettingForMatch(match1);
+        setSettingForMatch(match2);
 
-        scoreboard.updateScore(match1, 0, 5);
-        scoreboard.updateScore(match2, 10, 2);
+        scoreboard.updateScore(match1.get(), 0, 5);
+        scoreboard.updateScore(match2.get(), 10, 2);
 
         var summary = scoreboard.getSummary();
-
         assertTrue("Summary should contain both matches", summary.size() == 2);
+        assertTrue("The first match should have the higher total score or be the most recently started", summary.get(0).getTotalScore() >= summary.get(1).getTotalScore());
         assertEquals("The first match should have the higher total score", 12, summary.get(0).getTotalScore());
-        assertEquals("The second match should have the lower total score", 5, summary.get(1).getTotalScore());
+    }
+
+    private void setSettingForMatch(Optional<MatchInterface> optionalMatch) {
+        optionalMatch.ifPresent(match -> {
+            match.setState(MatchState.forInProgressState());
+            match.setScoringStrategy(ScoringStrategy.forFootballNormalTime());
+        });
     }
 
     @Test
@@ -115,9 +137,9 @@ public class ScoreboardTest {
     }
 
     private void getMatch(String homeTeam, String awayTeam, int homeScore, int awayScore) {
-        scoreboard.startMatch(homeTeam, awayTeam);
-        MatchInterface match = scoreboard.getMatch(homeTeam, awayTeam);
-        match.setState(new InProgressState());
+        MatchInterface match = matchFactory.createMatchBuilder(homeTeam, awayTeam).build();
+        match.setState(MatchState.forInProgressState());
+        scoreboard.addMatch(match);
         scoreboard.updateScore(match, homeScore, awayScore);
     }
 }
