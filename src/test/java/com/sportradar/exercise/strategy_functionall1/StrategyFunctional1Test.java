@@ -3,7 +3,7 @@ package com.sportradar.exercise.strategy_functionall1;
 import com.sportradar.exercise.abstract_factory.BasketballMatchFactory;
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
-import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.match.*;
 import com.sportradar.exercise.state.MatchState;
 import com.sportradar.exercise.strategy.ScoringStrategyMode;
 import org.junit.Test;
@@ -14,8 +14,8 @@ import static org.junit.Assert.assertEquals;
 
 public class StrategyFunctional1Test {
 
-    private Match createMatchWithStrategy(MatchFactory factory, BiConsumer<Match, int[]> strategy) {
-        return factory.createMatchBuilder("Team A", "Team B")
+    private Match createMatchWithStrategy(MatchFactory<? extends Match> factory, Team<?> teamA, Team<?> teamB, BiConsumer<Match, int[]> strategy) {
+        return factory.createMatchBuilder(teamA, teamB)
                 .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL1)
                 .state(MatchState.forInProgressState())
                 .scoringStrategyFunctional1(strategy)
@@ -24,7 +24,9 @@ public class StrategyFunctional1Test {
 
     @Test
     public void testFootballNormalTimeScoringStrategy() {
-        Match match = createMatchWithStrategy(new FootballMatchFactory(), ScoringStrategiesFunctional1.forFootballNormalTimeScoringStrategy);
+        Team<?> teamA = new FootballTeam.Builder().name("Team A").build();
+        Team<?> teamB = new FootballTeam.Builder().name("Team B").build();
+        FootballMatch match = (FootballMatch) createMatchWithStrategy(new FootballMatchFactory(), teamA, teamB, ScoringStrategiesFunctional1.forFootballNormalTimeScoringStrategy);
         match.updateScore(3, 3);
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
@@ -32,17 +34,20 @@ public class StrategyFunctional1Test {
 
     @Test
     public void testFootballExtraTimeScoringStrategy() {
-        Match match = createMatchWithStrategy(new FootballMatchFactory(), ScoringStrategiesFunctional1.forFootballExtraTimeScoringStrategy);
+        Team<?> teamA = new FootballTeam.Builder().name("Team A").build();
+        Team<?> teamB = new FootballTeam.Builder().name("Team B").build();
+        FootballMatch match = (FootballMatch) createMatchWithStrategy(new FootballMatchFactory(), teamA, teamB, ScoringStrategiesFunctional1.forFootballExtraTimeScoringStrategy);
         match.updateScore(2, 2);
         ScoringStrategiesFunctional1.forFootballExtraTimeScoringStrategy.accept(match, new int[]{1, 1});
-        assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
     }
 
     @Test
     public void testBasketballExtraTimeScoringStrategy() {
-        Match match = createMatchWithStrategy(new BasketballMatchFactory(), ScoringStrategiesFunctional1.forBasketballExtraTimeScoringStrategy);
+        Team<?> teamA = new BasketballTeam.Builder().name("Team A").build();
+        Team<?> teamB = new BasketballTeam.Builder().name("Team B").build();
+        BasketballMatch match = (BasketballMatch) createMatchWithStrategy(new BasketballMatchFactory(), teamA, teamB, ScoringStrategiesFunctional1.forBasketballExtraTimeScoringStrategy);
         match.updateScore(20, 20);
         ScoringStrategiesFunctional1.forBasketballExtraTimeScoringStrategy.accept(match, new int[]{10, 5});
         assertEquals("Home score should be 30", 30, match.getHomeScore());
@@ -51,7 +56,9 @@ public class StrategyFunctional1Test {
 
     @Test
     public void testBasketballNormalTimeScoringStrategy() {
-        Match match = createMatchWithStrategy(new BasketballMatchFactory(), ScoringStrategiesFunctional1.forBasketballNormalTimeScoringStrategy);
+        Team<?> teamA = new BasketballTeam.Builder().name("Team A").build();
+        Team<?> teamB = new BasketballTeam.Builder().name("Team B").build();
+        BasketballMatch match = (BasketballMatch) createMatchWithStrategy(new BasketballMatchFactory(), teamA, teamB, ScoringStrategiesFunctional1.forBasketballNormalTimeScoringStrategy);
         match.updateScore(10, 5);
         assertEquals("Home score should be 10", 10, match.getHomeScore());
         assertEquals("Away score should be 5", 5, match.getAwayScore());

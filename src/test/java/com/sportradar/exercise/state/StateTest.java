@@ -2,7 +2,9 @@ package com.sportradar.exercise.state;
 
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
+import com.sportradar.exercise.match.FootballTeam;
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.match.Team;
 import com.sportradar.exercise.strategy.ScoringStrategy;
 import com.sportradar.exercise.strategy.ScoringStrategyMode;
 import com.sportradar.exercise.strategy_functionall1.ScoringStrategiesFunctional1;
@@ -20,12 +22,17 @@ public class StateTest {
     @Before
     public void setUp() {
         matchFactory = new FootballMatchFactory();
-        match = matchFactory.createMatchBuilder("Team A", "Team B")
+
+        Team<?> teamA = FootballTeam.builder().name("Team A").build();
+        Team<?> teamB = FootballTeam.builder().name("Team B").build();
+
+        match = matchFactory.createMatchBuilder(teamA, teamB)
                 .state(MatchState.forNotStartedState())
                 .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
                 .scoringStrategy(ScoringStrategy.forFootballNormalTime())
                 .build();
     }
+
 
     @Test(expected = UnsupportedOperationException.class)
     public void testFinishedStateBlocksScoreUpdate() {

@@ -3,32 +3,41 @@ package com.sportradar.exercise.match;
 import com.sportradar.exercise.state.NotStartedState;
 import com.sportradar.exercise.strategy.ScoringStrategy;
 import com.sportradar.exercise.strategy.ScoringStrategyMode;
-import com.sportradar.exercise.strategy_functionall1.ScoringStrategiesFunctional1;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.function.BiConsumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BuilderTest {
+public class MatchBuilderTest {
 
-    private Match.Builder builder;
+    private FootballMatch .Builder builder;
+    private Team<?> homeTeam;
+    private Team<?> awayTeam;
 
     @Before
     public void setUp() {
-        builder = new Match.Builder("Team A", "Team B")
+        homeTeam = FootballTeam.builder()
+                .name("Team A")
+                .build();
+        awayTeam = FootballTeam.builder()
+                .name("Team B")
+                .build();
+
+        builder = (FootballMatch.Builder) new FootballMatch .Builder(homeTeam, awayTeam)
+//                .eventManagerFactory(FootballEventManager::new)
+                .eventManagerFactory(match -> new FootballEventManager((FootballMatch) match))
                 .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
                 .scoringStrategy(ScoringStrategy.forFootballNormalTime());
     }
 
     @Test
     public void testBuilderInitializesTeamsCorrectly() {
-        Match match = builder.build();
-        assertEquals("Team A should be set as home team", "Team A", match.getHomeTeam());
-        assertEquals("Team B should be set as away team", "Team B", match.getAwayTeam());
+        FootballMatch match = builder.build();
+        assertEquals("Team A should be set as home team", "Team A", match.getHomeTeam().getName());
+        assertEquals("Team B should be set as away team", "Team B", match.getAwayTeam().getName());
     }
+
 
     @Test
     public void testBuilderInitializesScoresToZero() {

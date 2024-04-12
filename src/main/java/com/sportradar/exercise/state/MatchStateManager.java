@@ -1,6 +1,7 @@
 package com.sportradar.exercise.state;
 
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.observer.MatchChangeEvent;
 import com.sportradar.exercise.strategy.ScoreApplier;
 import com.sportradar.exercise.strategy_functionall2.ScoringStrategiesFunctional2;
 import com.sportradar.exercise.strategy_functionall2.ScoringStrategyType;
@@ -31,8 +32,7 @@ public class MatchStateManager {
             throw new UnsupportedOperationException("Score update not allowed in current state: " + currentState.getClass().getSimpleName());
         }
 
-        // Determine which scoring strategy to apply based on the current strategy mode
-        switch (match.getCurrentStrategyMode()) {
+        switch (match.getStrategyMode()) {
             case CLASSIC:
                 applyScoringStrategy(homeScore, awayScore);
                 break;
@@ -50,7 +50,7 @@ public class MatchStateManager {
     private void applyScoringStrategy(int homeScore, int awayScore) {
         if (match.getScoringStrategy() instanceof ScoreApplier) {
             ((ScoreApplier) match.getScoringStrategy()).applyScore(match, homeScore, awayScore);
-            match.notifyObservers();
+            match.notifyObservers(new MatchChangeEvent( match));
         } else {
             throw new UnsupportedOperationException("Score update not allowed by the current scoring strategy.");
         }
@@ -60,7 +60,7 @@ public class MatchStateManager {
         BiConsumer<Match, int[]> scoringStrategy = match.getScoringStrategyFunctional1();
         if (scoringStrategy != null) {
             scoringStrategy.accept(match, new int[]{homeScore, awayScore});
-            match.notifyObservers();
+            match.notifyObservers(new MatchChangeEvent( match));
         } else {
             throw new UnsupportedOperationException("Score update not allowed by the current scoring strategy.");
         }
@@ -72,7 +72,7 @@ public class MatchStateManager {
             BiConsumer<Match, int[]> scoringStrategy = ScoringStrategiesFunctional2.getStrategy(scoringStrategyType);
             if (scoringStrategy != null) {
                 scoringStrategy.accept(match, new int[]{homeScore, awayScore});
-                match.notifyObservers();
+                match.notifyObservers(new MatchChangeEvent(match));
             } else {
                 throw new UnsupportedOperationException("Scoring strategy not found for type: " + scoringStrategyType);
             }

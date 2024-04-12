@@ -6,7 +6,9 @@ import com.sportradar.exercise.command.CommandExecutor;
 import com.sportradar.exercise.command.FinishMatchCommand;
 import com.sportradar.exercise.command.StartMatchCommand;
 import com.sportradar.exercise.command.UpdateScoreCommand;
+import com.sportradar.exercise.match.Match;
 import com.sportradar.exercise.match.MatchInterface;
+import com.sportradar.exercise.match.Team;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,7 @@ public class Scoreboard {
         this.matchFactory = matchFactory;
     }
 
-    public void startMatch(String homeTeam, String awayTeam) {
+    public void startMatch(Team<?> homeTeam, Team<?> awayTeam) {
         StartMatchCommand startMatchCommand = new StartMatchCommand(this, this.matchFactory, homeTeam, awayTeam);
         commandExecutor.executeCommand(startMatchCommand);
     }
@@ -53,7 +55,7 @@ public class Scoreboard {
         return summaryGenerator.generateSummary(new ArrayList<>(matches));
     }
 
-    public Optional<MatchInterface> getMatch(String homeTeam, String awayTeam) {
+    public Optional<MatchInterface> getMatch(Team<?> homeTeam, Team<?> awayTeam) {
         return matches.stream()
                 .filter(match -> match.getHomeTeam().equals(homeTeam) && match.getAwayTeam().equals(awayTeam))
                 .findFirst();

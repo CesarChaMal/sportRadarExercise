@@ -1,6 +1,7 @@
 package com.sportradar.exercise.abstract_factory;
 
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.match.Team;
 
 public class MatchOrganizer {
     private MatchFactory matchFactory;
@@ -9,7 +10,7 @@ public class MatchOrganizer {
         this.matchFactory = matchFactory;
     }
 
-    public Match organizeMatch(String homeTeam, String awayTeam) {
+    public Match organizeMatch(Team<?> homeTeam, Team<?> awayTeam) {
         Match.Builder matchBuilder = matchFactory.createMatchBuilder(homeTeam, awayTeam);
         return matchBuilder.build();
     }

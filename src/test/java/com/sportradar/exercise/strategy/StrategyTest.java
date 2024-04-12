@@ -3,7 +3,9 @@ package com.sportradar.exercise.strategy;
 import com.sportradar.exercise.abstract_factory.BasketballMatchFactory;
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
+import com.sportradar.exercise.match.FootballTeam;
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.match.Team;
 import com.sportradar.exercise.state.MatchState;
 import org.junit.Test;
 
@@ -12,7 +14,10 @@ import static org.junit.Assert.assertEquals;
 public class StrategyTest {
 
     private Match createMatchWithStrategy(MatchFactory factory, ScoringStrategy strategy) {
-        return factory.createMatchBuilder("Team A", "Team B")
+        Team<?> teamA = new FootballTeam.Builder().name("Team A").build();
+        Team<?> teamB = new FootballTeam.Builder().name("Team B").build();
+
+        return factory.createMatchBuilder(teamA, teamB)
                 .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
                 .state(MatchState.forInProgressState())
                 .scoringStrategy(strategy)
@@ -32,7 +37,6 @@ public class StrategyTest {
         Match match = createMatchWithStrategy(new FootballMatchFactory(), ScoringStrategy.forFootballExtraTime());
         match.updateScore(2, 2);
         match.getScoringStrategy().calculateScore(match, 1, 1);
-        assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
     }

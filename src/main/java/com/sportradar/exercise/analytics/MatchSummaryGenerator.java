@@ -1,5 +1,6 @@
 package com.sportradar.exercise.analytics;
 
+import com.sportradar.exercise.match.Match;
 import com.sportradar.exercise.match.MatchInterface;
 
 import java.util.Collections;

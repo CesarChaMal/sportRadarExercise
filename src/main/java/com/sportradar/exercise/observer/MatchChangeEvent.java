@@ -2,10 +2,10 @@ package com.sportradar.exercise.observer;
 
 import com.sportradar.exercise.match.MatchInterface;
 
-public class MatchEvent {
+public class MatchChangeEvent {
     private final MatchInterface match;
 
-    public MatchEvent(MatchInterface match) {
+    public MatchChangeEvent(MatchInterface match) {
         this.match = match;
     }
 

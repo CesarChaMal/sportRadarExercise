@@ -7,15 +7,19 @@ public interface MatchState {
     void finishMatch(Match match);
     boolean canUpdateScore();
 
+    MatchState NOT_STARTED = new NotStartedState();
+    MatchState IN_PROGRESS = new InProgressState();
+    MatchState FINISHED = new FinishedState();
+
     static MatchState forNotStartedState() {
-        return new NotStartedState();
+        return NOT_STARTED;
     }
 
     static MatchState forInProgressState() {
-        return new InProgressState();
+        return IN_PROGRESS;
     }
 
     static MatchState forFinishedState() {
-        return new FinishedState();
+        return FINISHED;
     }
 }

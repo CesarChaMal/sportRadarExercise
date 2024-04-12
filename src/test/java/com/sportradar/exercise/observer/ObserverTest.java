@@ -9,17 +9,17 @@ import static org.mockito.Mockito.*;
 
 public class ObserverTest {
 
-    private MatchEventNotifier<MatchEvent> matchEventNotifier;
-    private Observer<MatchEvent> observer;
+    private MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
+    private Observer<MatchChangeEvent> observer;
     private Match match;
-    private MatchEvent matchEvent;
+    private MatchChangeEvent matchEvent;
 
     @Before
     public void setUp() {
         matchEventNotifier = new MatchEventNotifier<>();
         observer = Mockito.mock(Observer.class);
         match = Mockito.mock(Match.class);
-        matchEvent = new MatchEvent(match);
+        matchEvent = new MatchChangeEvent(match);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class ObserverTest {
 
     @Test
     public void testNotifyObservers() {
-        Observer<MatchEvent> secondObserver = Mockito.mock(Observer.class);
+        Observer<MatchChangeEvent> secondObserver = Mockito.mock(Observer.class);
         matchEventNotifier.registerObserver(observer);
         matchEventNotifier.registerObserver(secondObserver);
         
