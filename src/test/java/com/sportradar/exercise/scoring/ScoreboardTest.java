@@ -80,7 +80,8 @@ public class ScoreboardTest {
         MatchInterface match = matchFactory.createMatchBuilder(homeTeam, awayTeam)
                 .scoringStrategy(ScoringStrategy.forFootballNormalTime()).build();
         scoreboard.addMatch(match);
-        match.setState(MatchState.forInProgressState());
+//        match.setState(MatchState.forInProgressState());
+        match.startMatch();
 
         UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, 2, 2);
         updateScoreCommand.execute();
@@ -128,8 +129,10 @@ public class ScoreboardTest {
         scoreboard.addMatch(match1);
         scoreboard.addMatch(match2);
 
-        match1.setState(MatchState.forInProgressState());
-        match2.setState(MatchState.forInProgressState());
+//        match1.setState(MatchState.forInProgressState());
+        match1.startMatch();
+//        match2.setState(MatchState.forInProgressState());
+        match2.startMatch();
         scoreboard.updateScore(match1, 0, 5);
         scoreboard.updateScore(match2, 10, 2);
 
@@ -142,7 +145,8 @@ public class ScoreboardTest {
 
     private void setSettingForMatch(Optional<MatchInterface> optionalMatch) {
         optionalMatch.ifPresent(match -> {
-            match.setState(MatchState.forInProgressState());
+//            match.setState(MatchState.forInProgressState());
+            match.startMatch();
             match.setScoringStrategy(ScoringStrategy.forFootballNormalTime());
         });
     }
@@ -177,7 +181,8 @@ public class ScoreboardTest {
 
     private void getMatch(Team<?> homeTeam, Team<?> awayTeam, int homeScore, int awayScore) {
         MatchInterface match = matchFactory.createMatchBuilder(homeTeam, awayTeam).build();
-        match.setState(MatchState.forInProgressState());
+//        match.setState(MatchState.forInProgressState());
+        match.startMatch();
         scoreboard.addMatch(match);
         scoreboard.updateScore(match, homeScore, awayScore);
     }

@@ -1,5 +1,7 @@
 package com.sportradar.exercise.match;
 
+import java.util.List;
+
 public class BasketballMatch extends Match {
 
     private BasketballMatch(Builder builder) {
@@ -12,7 +14,14 @@ public class BasketballMatch extends Match {
             throw new IllegalStateException("Event manager is not configured for basketball");
         }
         manager.addPointsScoredEvent(scorer, points);
-//        notifyObservers(new MatchChangeEvent(this));
+    }
+
+    public void addEvent(EventType eventType, List<? extends Player> involvedPlayers, int points) {
+        BasketballEventManager manager = (BasketballEventManager) getEventManager();
+        if (manager == null) {
+            throw new IllegalStateException("Event manager is not configured for basketball");
+        }
+        manager.addEvent(eventType, involvedPlayers, points);
     }
 
     public static class Builder extends Match.Builder<BasketballMatch.Builder> {

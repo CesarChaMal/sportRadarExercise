@@ -14,7 +14,21 @@ public final class FinishedState implements MatchState {
     }
 
     @Override
+    public void pauseMatch(Match match) {
+        throw new UnsupportedOperationException("Match is already finished.");
+    }
+
+    @Override
+    public void resumeMatch(Match match) {
+        throw new UnsupportedOperationException("Match is already finished.");
+    }
+
+    @Override
     public boolean canUpdateScore() {
+        return false;
+    }
+
+    public boolean isValidTransition(MatchState newState) {
         return false;
     }
 }

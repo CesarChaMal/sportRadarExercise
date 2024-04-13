@@ -10,18 +10,13 @@ public class FootballMatch extends Match {
     public void scoreHomeGoal(FootballPlayer scorer, FootballPlayer assistant) {
         incrementHomeScore(1);
         ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
-        notifyObservers(new MatchChangeEvent(this));
+        notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
     public void scoreAwayGoal(FootballPlayer scorer, FootballPlayer assistant) {
         incrementAwayScore(1);
         ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
-        notifyObservers(new MatchChangeEvent(this));
-    }
-
-    public void updateScore(int homeScore, int awayScore) {
-        super.updateScore(homeScore, awayScore);
-        notifyObservers(new MatchChangeEvent(this));
+        notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
     public static class Builder extends Match.Builder<Builder> {

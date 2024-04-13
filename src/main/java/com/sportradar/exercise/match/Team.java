@@ -29,7 +29,8 @@ public abstract class Team<P extends Player> {
     }
 
     public List<P> getRoster() {
-        return Collections.unmodifiableList(roster);
+//        return Collections.unmodifiableList(roster);
+        return new ArrayList<>(roster);
     }
 
 /*
@@ -37,6 +38,13 @@ public abstract class Team<P extends Player> {
         this.roster = new ArrayList<>(newRoster);
     }
 */
+
+    public void addPlayer(P player) {
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        this.roster.add(player);
+    }
 
     public String getLogoUrl() {
         return logoUrl;
@@ -56,6 +64,13 @@ public abstract class Team<P extends Player> {
 
     public int getDraws() {
         return draws;
+    }
+
+    @Override
+    public String toString() {
+        return "Team{" +
+                "name='" + name + '\'' +
+                '}';
     }
 
     public static class Builder<P extends Player> {

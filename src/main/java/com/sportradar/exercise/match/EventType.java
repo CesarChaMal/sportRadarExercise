@@ -14,10 +14,14 @@ public enum EventType {
     THREE_POINT_SCORE("Three-Point Score", Sport.BASKETBALL),
     FREE_THROW("Free Throw", Sport.BASKETBALL),
 
+    MATCH_NO_STARTED("Match No Started", null),
     MATCH_STARTED("Match Started", null),
     MATCH_FINISHED("Match Finished", null),
+    MATCH_PAUSED("Match Pause", null),
+    MATCH_RESUMED("Match Resumed", null),
     SCORE_UPDATE("Score Update", null),
-    SUBSTITUTION("Substitution", null);
+    SUBSTITUTION("Substitution", null),
+    UNKNOWN("Unknown",null);
 
     private final String description;
     private final Sport sport;

@@ -1,5 +1,6 @@
 package com.sportradar.exercise.observer;
 
+import com.sportradar.exercise.match.EventType;
 import com.sportradar.exercise.match.Match;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +17,10 @@ public class ObserverTest {
 
     @Before
     public void setUp() {
-        matchEventNotifier = new MatchEventNotifier<>();
+        matchEventNotifier = new MatchEventNotifier<>(MatchChangeEvent.class);
         observer = Mockito.mock(Observer.class);
         match = Mockito.mock(Match.class);
-        matchEvent = new MatchChangeEvent(match);
+        matchEvent = new MatchChangeEvent(match, EventType.MATCH_NO_STARTED);
     }
 
     @Test

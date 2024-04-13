@@ -1,7 +1,6 @@
 package com.sportradar.exercise.match;
 
 import com.sportradar.exercise.observer.MatchChangeEvent;
-import com.sportradar.exercise.observer.MatchEventNotifier;
 import com.sportradar.exercise.observer.Observer;
 import com.sportradar.exercise.state.MatchState;
 import com.sportradar.exercise.state.MatchStateManager;
@@ -13,10 +12,13 @@ import com.sportradar.exercise.strategy_functionall2.ScoringStrategyType;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import static com.sportradar.exercise.state.MatchState.*;
 
 public abstract class Match implements MatchInterface, Comparable<Match> {
     private final Team<?> homeTeam;
@@ -24,13 +26,12 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
     private final Score score;
     private final long startTime;
     private final long creationTime;
-    private final MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
     private final MatchStateManager stateManager;
     private ScoringStrategy scoringStrategy;
     private BiConsumer<Match, int[]> scoringStrategyFunctional1;
     private ScoringStrategyType scoringStrategyFunctional2;
     private ScoringStrategyMode strategyMode;
-    private EventManager eventManager;
+    private final EventManager eventManager;
     private boolean enableValidationOfStrategyMode;
 
     protected Match(Builder builder) {
@@ -39,10 +40,9 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         this.score = new Score(builder.homeScore, builder.awayScore);
         this.startTime = System.currentTimeMillis();
         this.creationTime = System.nanoTime();
-        matchEventNotifier = new MatchEventNotifier<>();
         this.stateManager = new MatchStateManager(this, builder.state);
-        this.scoringStrategy = builder.scoringStrategy;
         this.strategyMode = builder.strategyMode;
+        this.scoringStrategy = builder.scoringStrategy;
         this.scoringStrategyFunctional1 = builder.scoringStrategyFunctional1;
         this.scoringStrategyFunctional2 = builder.scoringStrategyFunctional2;
         this.eventManager = (EventManager) builder.eventManagerFactory.apply(this);
@@ -67,21 +67,17 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
     public void setHomeScore(int homeScore) {
         if (homeScore < 0) throw new IllegalArgumentException("Score must be non-negative");
         score.setHomeScore(homeScore);
-//        addGoalEvent(homeTeam.getRoster()).;
-//        notifyObservers(new MatchChangeEvent(this));
     }
 
     public void setAwayScore(int awayScore) {
         if (awayScore < 0) throw new IllegalArgumentException("Score must be non-negative");
         score.setAwayScore(awayScore);
-//        notifyObservers(new MatchChangeEvent(this));
     }
 
     @Override
     public void updateScore(int homeScore, int awayScore) {
-        this.stateManager.handleScoreUpdate(homeScore, awayScore);
         this.eventManager.addScoreUpdateEvent();
-        notifyObservers(new MatchChangeEvent(this));
+        this.stateManager.handleScoreUpdate(homeScore, awayScore);
     }
 
     public int getTotalScore() {
@@ -96,9 +92,13 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         return this.creationTime;
     }
 
+    public MatchStateManager getStateManager() {
+        return stateManager;
+    }
+
     public void notifyObservers(MatchChangeEvent matchChangeEvent) {
-        MatchChangeEvent event = new MatchChangeEvent(this);
-        matchEventNotifier.notifyObservers(event);
+        MatchChangeEvent event = new MatchChangeEvent(this, matchChangeEvent.getEventType());
+        eventManager.notifyObservers(event);
     }
 
     @Override
@@ -109,7 +109,6 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
     @Override
     public void setState(MatchState newState) {
         this.stateManager.transitionState(newState);
-//        notifyObservers(new MatchChangeEvent(this));
     }
 
     public ScoringStrategy getScoringStrategy() {
@@ -128,7 +127,6 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         Objects.requireNonNull(strategy, "Scoring strategy must not be null");
         if (strategyMode == ScoringStrategyMode.CLASSIC) {
             this.scoringStrategy = strategy;
-//            this.notifyObservers(new MatchChangeEvent(this));
         } else {
             throw new IllegalArgumentException("Scoring strategy must be of type ScoringStrategy");
         }
@@ -138,7 +136,6 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         Objects.requireNonNull(strategy, "Scoring strategy must not be null");
         if (strategyMode == ScoringStrategyMode.FUNCTIONAL1) {
             this.scoringStrategyFunctional1 = strategy;
-//            this.notifyObservers(new MatchChangeEvent(this));
         } else {
             throw new IllegalArgumentException("Scoring strategy must be of type BiConsumer<Match, int[]>");
         }
@@ -149,7 +146,6 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         Objects.requireNonNull(strategy, "Scoring strategy must not be null");
         if (strategyMode == ScoringStrategyMode.FUNCTIONAL2) {
             this.scoringStrategyFunctional2 = strategy;
-//            this.notifyObservers(new MatchChangeEvent(this));
         } else {
             throw new IllegalArgumentException("Scoring strategy must be of type ScoringStrategyType");
         }
@@ -160,16 +156,22 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
     }
 
     public void setStrategyMode(ScoringStrategyMode mode) {
-        if (enableValidationOfStrategyMode) {
-            if (strategyMode != null && strategyMode != mode) {
-                throw new IllegalStateException("A scoring strategy mode has already been set and cannot be changed.");
-            }
+        if (isEnableValidationOfStrategyMode() && isStrategyModeNotNullAndDiferentThanMode(mode)) {
+            throw new IllegalStateException("A scoring strategy mode has already been set and cannot be changed.");
         }
         this.strategyMode = mode;
     }
 
+    private boolean isStrategyModeNotNullAndDiferentThanMode(ScoringStrategyMode mode) {
+        return strategyMode != null && strategyMode != mode;
+    }
+
     public void addEvent(EventType eventType, List<? extends Player> involvedPlayers) {
         eventManager.addEvent(eventType, involvedPlayers);
+    }
+
+    public void addEvent(EventType event) {
+        eventManager.addEvent(event);
     }
 
     public void registerObserver(Observer<MatchChangeEvent> observer) {
@@ -184,7 +186,7 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         return eventManager.getEvents();
     }
 
-    protected EventManager getEventManager() {
+    public EventManager getEventManager() {
         return eventManager;
     }
 
@@ -206,6 +208,26 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
 
     public void setEnableValidationOfStrategyMode(boolean enableValidationOfStrategyMode) {
         this.enableValidationOfStrategyMode = enableValidationOfStrategyMode;
+    }
+
+    @Override
+    public void startMatch() {
+        eventManager.startMatch();
+    }
+
+    @Override
+    public void finishMatch() {
+        eventManager.finishMatch();
+    }
+
+    @Override
+    public void pauseMatch() {
+        eventManager.pauseMatch();
+    }
+
+    @Override
+    public void resumeMatch() {
+        eventManager.resumeMatch();
     }
 
     public abstract static class Builder<T extends Builder<T>> {

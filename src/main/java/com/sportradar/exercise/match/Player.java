@@ -23,6 +23,13 @@ public abstract class Player {
         return team;
     }
 
+    @Override
+    public String toString() {
+        return "Player{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
     public abstract static class Builder<T extends Builder<T>> {
         private String name;
         private String position;

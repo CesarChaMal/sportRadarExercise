@@ -33,16 +33,17 @@ public class StateTest {
                 .build();
     }
 
-
     @Test(expected = UnsupportedOperationException.class)
     public void testFinishedStateBlocksScoreUpdate() {
-        match.setState(MatchState.forFinishedState());
+//        match.setState(MatchState.forFinishedState());
+        match.finishMatch();
         match.updateScore(1, 0);
     }
 
     @Test
-    public void testInProgressStateAllowsScoreUpdate() {
-        match.setState(MatchState.forInProgressState());
+        public void testInProgressStateAllowsScoreUpdate() {
+//        match.setState(MatchState.forInProgressState());
+        match.startMatch();
         match.updateScore(1, 0);
         assertEquals("Home score should be updated", 1, match.getHomeScore());
         assertEquals("Away score should remain unchanged", 0, match.getAwayScore());
@@ -57,19 +58,26 @@ public class StateTest {
 
     @Test
     public void testInProgressStateFinishMatch() {
-        match.setState(MatchState.forInProgressState());
-        match.setState(MatchState.forFinishedState());
+//        one way to do it
+//        match.setState(MatchState.forInProgressState());
+//        match.setState(MatchState.forFinishedState());
+
+        match.startMatch();
+        match.finishMatch();
         assertTrue("Match should be in FinishedState", match.getState() instanceof FinishedState);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testFinishedStateBlocksFinishingAgain() {
-        match.setState(MatchState.forFinishedState());
-        match.setState(MatchState.forFinishedState());
+//        match.setState(MatchState.forFinishedState());
+//        match.setState(MatchState.forFinishedState());
+        match.finishMatch();
+        match.finishMatch();
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testNotStartedStateBlocksFinishingMatch() {
-        match.setState(MatchState.forFinishedState());
+//        match.setState(MatchState.forFinishedState());
+        match.finishMatch();
     }
 }

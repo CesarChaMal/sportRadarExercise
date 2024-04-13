@@ -10,13 +10,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class BasketballEventManager implements EventManager {
-    private final List<MatchEvent<?>> events = new ArrayList<>();
-    private final MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
+//    private final List<MatchEvent<?>> events = new ArrayList<>();
+    private MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
     private final Match match;
+    private final MatchStateController stateController;
+    private CommonEventManager commonEventManager;
 
     public BasketballEventManager(Match match) {
         this.match = match;
-        this.matchEventNotifier = new MatchEventNotifier<>();
+        this.matchEventNotifier = new MatchEventNotifier<>(MatchChangeEvent.class);
+        this.stateController = new MatchStateController(match, matchEventNotifier);
+        this.commonEventManager = new CommonEventManager(match, matchEventNotifier);
     }
 
     public void addPointsScoredEvent(BasketballPlayer scorer, int points) {
@@ -39,21 +43,12 @@ public class BasketballEventManager implements EventManager {
         addEvent(EventType.SUBSTITUTION, involvedPlayers);
     }
 
-    @Override
-    public void addEvent(MatchEvent<?> event) {
-        events.add(event);
-//        notifyObservers();
+    public void addEvent(EventType eventType) {
+        commonEventManager.addEvent(eventType);
     }
 
     public void addEvent(EventType eventType, List<? extends Player> involvedPlayers) {
-        MatchEvent<?> event = new MatchEvent.Builder<Player>()
-                .eventType(eventType)
-                .timestamp(Instant.now())
-                .involvedPlayers(new ArrayList<>(involvedPlayers))
-                .match(match)
-                .build();
-        events.add(event);
-//        notifyObservers();
+        commonEventManager.addEvent(eventType, involvedPlayers);
     }
 
     public void addEvent(EventType eventType, List<? extends Player> involvedPlayers, int points) {
@@ -64,16 +59,15 @@ public class BasketballEventManager implements EventManager {
                 .additionalData("points", points)
                 .match(match)
                 .build();
-        events.add(event);
-//        notifyObservers();
+        commonEventManager.addEventToList(event);
     }
 
     public void addScoreUpdateEvent() {
-        addEvent(EventType.SCORE_UPDATE, Collections.emptyList());
+        commonEventManager.addScoreUpdateEvent();
     }
 
     public List<MatchEvent<?>> getEvents() {
-        return Collections.unmodifiableList(events);
+        return commonEventManager.getEvents();
     }
 
     public void registerObserver(Observer<MatchChangeEvent> observer) {
@@ -84,7 +78,42 @@ public class BasketballEventManager implements EventManager {
         matchEventNotifier.removeObserver(observer);
     }
 
-    private void notifyObservers() {
-        matchEventNotifier.notifyObservers(new MatchChangeEvent(match));
+    @Override
+    public void notifyObservers(MatchChangeEvent matchChangeEvent) {
+        matchEventNotifier.notifyObservers(matchChangeEvent);
+    }
+
+    @Override
+    public MatchEventNotifier<MatchChangeEvent> getMatchEventNotifier() {
+        return matchEventNotifier;
+    }
+
+    @Override
+    public void setMatchEventNotifier(MatchEventNotifier<MatchChangeEvent>  notifier) {
+        this.matchEventNotifier = notifier;
+    }
+
+    @Override
+    public void startMatch() {
+        addEvent(EventType.MATCH_STARTED);
+        stateController.startMatch();
+    }
+
+    @Override
+    public void finishMatch() {
+        addEvent(EventType.MATCH_FINISHED);
+        stateController.finishMatch();
+    }
+
+    @Override
+    public void pauseMatch() {
+        addEvent(EventType.MATCH_PAUSED);
+        stateController.pauseMatch();
+    }
+
+    @Override
+    public void resumeMatch() {
+        addEvent(EventType.MATCH_RESUMED);
+        stateController.resumeMatch();
     }
 }
