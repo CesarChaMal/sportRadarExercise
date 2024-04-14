@@ -31,7 +31,7 @@ public class StrategyFunctional2Test {
         Team<?> teamB = new FootballTeam.Builder().name("Team B").build();
 
         Match match = createMatchWithStrategy(new FootballMatchFactory(), teamA, teamB, ScoringStrategyType.FOOTBALL_NORMAL_TIME);
-        match.updateScore(3, 3);
+        match.updateScore(EventType.SCORE_UPDATE, 3, 3);
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
     }
@@ -44,7 +44,7 @@ public class StrategyFunctional2Test {
         Match match = createMatchWithStrategy(new FootballMatchFactory(), teamA, teamB, ScoringStrategyType.FOOTBALL_EXTRA_TIME);
 
         BiConsumer<Match, int[]> strategy = ScoringStrategiesFunctional2.getStrategy(ScoringStrategyType.FOOTBALL_EXTRA_TIME);
-        match.updateScore(2, 2);
+        match.updateScore(EventType.SCORE_UPDATE, 2, 2);
         strategy.accept(match, new int[]{1, 1});
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
@@ -58,7 +58,7 @@ public class StrategyFunctional2Test {
         Match match = createMatchWithStrategy(new BasketballMatchFactory(), teamA, teamB, ScoringStrategyType.BASKETBALL_EXTRA_TIME);
 
         BiConsumer<Match, int[]> strategy = ScoringStrategiesFunctional2.getStrategy(ScoringStrategyType.BASKETBALL_EXTRA_TIME);
-        match.updateScore(20, 20);
+        match.updateScore(EventType.SCORE_UPDATE, 20, 20);
         strategy.accept(match, new int[]{10, 5});
         assertEquals("Home score should be 30", 30, match.getHomeScore());
         assertEquals("Away score should be 25", 25, match.getAwayScore());
@@ -71,7 +71,7 @@ public class StrategyFunctional2Test {
 
         Match match = createMatchWithStrategy(new BasketballMatchFactory(), teamA, teamB, ScoringStrategyType.BASKETBALL_NORMAL_TIME);
 
-        match.updateScore(10, 5);
+        match.updateScore(EventType.SCORE_UPDATE, 10, 5);
         assertEquals("Home score should be 10", 10, match.getHomeScore());
         assertEquals("Away score should be 5", 5, match.getAwayScore());
     }

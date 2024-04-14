@@ -11,6 +11,7 @@ import com.sportradar.exercise.match.MatchInterface;
 import com.sportradar.exercise.match.Team;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +49,11 @@ public class Scoreboard {
 
     public void removeMatch(MatchInterface match) {
         matches.remove(match);
+    }
+
+    public List<MatchInterface> getMatches() {
+//        return Collections.unmodifiableList(matches);
+        return new ArrayList<>(matches);
     }
 
     //O(n log n

@@ -1,5 +1,6 @@
 package com.sportradar.exercise.command;
 
+import com.sportradar.exercise.match.EventType;
 import com.sportradar.exercise.match.Match;
 import com.sportradar.exercise.match.MatchInterface;
 
@@ -17,6 +18,6 @@ public class UpdateScoreCommand implements MatchCommand {
         if (!match.getState().canUpdateScore()) {
             throw new IllegalStateException("Score update is blocked in the current match state.");
         }
-        match.updateScore(this.match.getHomeScore(), this.match.getAwayScore());
+        match.updateScore(EventType.SCORE_UPDATE, this.match.getHomeScore(), this.match.getAwayScore());
     }
 }

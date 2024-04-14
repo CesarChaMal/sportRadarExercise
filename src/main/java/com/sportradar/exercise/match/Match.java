@@ -74,9 +74,12 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         score.setAwayScore(awayScore);
     }
 
-    @Override
-    public void updateScore(int homeScore, int awayScore) {
-        this.eventManager.addScoreUpdateEvent();
+    public void updateScore(EventType eventType, int homeScore, int awayScore) {
+        if (eventType == EventType.SCORE_UPDATE) {
+            this.eventManager.addScoreUpdateEvent();
+        } else {
+            this.eventManager.addEvent(eventType);
+        }
         this.stateManager.handleScoreUpdate(homeScore, awayScore);
     }
 
@@ -94,11 +97,6 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
 
     public MatchStateManager getStateManager() {
         return stateManager;
-    }
-
-    public void notifyObservers(MatchChangeEvent matchChangeEvent) {
-        MatchChangeEvent event = new MatchChangeEvent(this, matchChangeEvent.getEventType());
-        eventManager.notifyObservers(event);
     }
 
     @Override
@@ -182,6 +180,11 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         eventManager.removeObserver(observer);
     }
 
+    public void notifyObservers(MatchChangeEvent matchChangeEvent) {
+        MatchChangeEvent event = new MatchChangeEvent(this, matchChangeEvent.getEventType());
+        eventManager.notifyObservers(event);
+    }
+
     public List<MatchEvent<?>> getEvents() {
         return eventManager.getEvents();
     }
@@ -195,11 +198,36 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
     }
 
     protected void incrementHomeScore(int increment) {
-        this.score.setHomeScore(this.score.getHomeScore() + increment);
+        int newHomeScore = this.score.getHomeScore() + increment;
+        setHomeScore(newHomeScore);
+
+        int currentAwayScore = this.score.getAwayScore();
+//        updateScore(newHomeScore, currentAwayScore);
     }
 
     protected void incrementAwayScore(int increment) {
-        this.score.setAwayScore(this.score.getAwayScore() + increment);
+        int currentHomeScore = this.score.getHomeScore();
+
+        int newAwayScore = this.score.getAwayScore() + increment;
+        setAwayScore(newAwayScore);
+//        updateScore(currentHomeScore, newAwayScore);
+    }
+
+    public void incrementScore(EventType eventType, Team<?> scoringTeam, int points) {
+        if (scoringTeam == null) {
+            throw new IllegalArgumentException("Scoring team cannot be null.");
+        }
+
+        if (scoringTeam.equals(homeTeam)) {
+            incrementHomeScore(points);
+        } else if (scoringTeam.equals(awayTeam)) {
+            incrementAwayScore(points);
+        } else {
+            throw new IllegalArgumentException("Scoring team does not participate in this match.");
+        }
+
+        int newAwayScore = getAwayScore();
+        updateScore(eventType, getHomeScore(), newAwayScore);
     }
 
     public boolean isEnableValidationOfStrategyMode() {

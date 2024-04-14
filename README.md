@@ -2,18 +2,28 @@
 
 ## Overview
 
-This Live Football Scoreboard Library is designed to simulate real-time tracking of football matches. It provides functionalities to start new matches, update ongoing match scores, finish matches, and generate a summary of matches ordered by their total score and start times. The current version of the library is v0.2.0.
+This Live Football Scoreboard Library provides a simulation of real-time tracking for football matches. It offers functionalities to start matches, update scores, finish matches, and generate a sorted summary of matches. The library is now upgraded to version v0.3.0, which introduces support for basketball alongside improved strategies for scoring and state management.
+
 ## Version
 
-The current version of the Live Football Scoreboard Library is **v0.2.0**. This version builds upon the initial functionalities with the introduction of functional programming concepts, specifically for implementing flexible scoring strategies. It allows for dynamic changes in scoring rules based on match context, such as switching to extra time rules.
+The current version of the Live Football Scoreboard Library is **v0.3.0**. This version introduces basketball match management and enhancements in the scoring system to accommodate different sports.
 
 ## Features
 
-- **Start a Match**: Begin a match between two teams with an initial score of 0 – 0. Matches can now be started with specified scoring strategies to accommodate different phases of the game (e.g., normal time, extra time).
-- **Update Score**: Update the score of ongoing matches, with the applied scoring strategy determining how scores are modified. This offers flexibility for different types of matches and scoring rules.
-- **Change Scoring Strategy**: Dynamically change the scoring strategy of a match in progress to adapt to different situations, such as moving from normal time to extra time scoring.
-- **Finish Match**: Mark a match as finished, removing it from the list of active matches on the scoreboard. This concludes the tracking of the match in the system.
-- **Get Summary**: Retrieve a sorted summary of active matches. The summary is sorted first by total score, and for matches with equal scores, by start time. This provides a clear overview of ongoing matches, making it easy to see which matches are most competitive or interesting.
+### Match Management
+- **Start a Match**: Initiate a football or basketball match specifying initial scores and strategies.
+- **Update Score**: Dynamically update the score during a match based on defined scoring strategies.
+- **Finish Match**: Conclude a match and update its status to finished.
+
+### Scoring Strategies
+- **Flexible Scoring Strategies**: Define scoring behaviors that can change dynamically during the match to reflect different phases like normal time or overtime.
+- **Sport-Specific Strategies**: Implement sport-specific scoring strategies for football and basketball.
+
+### Match Summarization
+- **Get Summary**: Retrieve a summary of matches, sorted by total score and start time, providing insights into the most competitive and high-scoring games.
+
+### Observability
+- **Real-time Updates**: Utilize the observer pattern to notify all registered observers about changes in the match state or score.
 
 ## Design Patterns, Principles and Good Practices
 
@@ -62,10 +72,41 @@ This library incorporates functional programming principles to enhance readabili
 - **Test-Driven Development (TDD)**: Development began with writing tests for each functionality, ensuring each piece of code is properly tested before implementation.
 - **Clean Code**: Effort was made to write readable, simple, and refactored code to enhance maintainability and understandability.
 
-## How to Use
+## Requirements
 
-This library offers a flexible way to handle football matches, including starting matches, updating scores, finishing matches, and retrieving summaries of ongoing matches. Additionally, it supports different scoring strategies to accommodate various match scenarios, such as normal time, extra time, or custom rules.
+### Java Version
+This project is built using **Java SE 22**. Ensure that you have the JDK for Java 22 installed on your machine to compile and run the project successfully.
 
+### Maven
+The project uses Maven for dependency management and builds processes. It is recommended to use the Maven Wrapper included in the project to ensure the correct version of Maven is utilized.
+
+## Getting Started
+
+### Running the Project
+
+1. **Clone the Repository**
+- First, clone the repository to your local machine using Git:
+```bash
+git clone https://github.com/CesarChaMal/sportRadarExercise.git
+cd SportRadarExercise
+  ```
+
+2. **Building the Project**
+- Once the Maven Wrapper is set up, you can build the project using the following command. This command will clean the previous builds and compile the project, run tests, and package the application:
+```bash
+./mvnw clean install
+```
+
+- On Windows systems, use `mvnw.cmd` instead of `./mvnw`:
+```bash
+mvnw.cmd clean install
+```
+
+### Run Specific Tests
+To run specific tests during the development process, you can use the following Maven command:
+```bash
+./mvnw test -Dtest=ClassNameTest
+```
 ## How to Use
 
 This library offers a flexible way to handle football matches, including starting matches, updating scores, finishing matches, and retrieving summaries of ongoing matches. Additionally, it supports different scoring strategies to accommodate various match scenarios, such as normal time, extra time, or custom rules.
@@ -78,35 +119,48 @@ You can start a match by directly creating a `Match` object with a factory or by
 Scoreboard scoreboard = new Scoreboard();
 MatchFactory footballMatchFactory = new FootballMatchFactory();
 
-// Starting a match with the default scoring strategy using the factory
-MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team").build();
-scoreboard.addMatch(match);
+// Create teams for the football match
+Team<FootballPlayer> homeFootballTeam = new FootballTeam.Builder().name("Home Football Team").build();
+Team<FootballPlayer> awayFootballTeam = new FootballTeam.Builder().name("Away Football Team").build();
 
-// Starting a match with a specific scoring strategy using the scoreboard
-scoreboard.startMatch("Home Team", "Away Team", ScoringStrategies.footballNormalTimeScoringStrategy);
+// Start a football match
+MatchFactory<FootballMatch> footballMatchFactory = new FootballMatchFactory();
+MatchInterface footballMatch = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam).build();
+scoreboard.addMatch(footballMatch);
 
-// Starting a match with a specific strategy mode
-MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+// Create teams for the basketball match
+Team<BasketballPlayer> homeBasketballTeam = new BasketballTeam.Builder().name("Home Basketball Team").build();
+Team<BasketballPlayer> awayBasketballTeam = new BasketballTeam.Builder().name("Away Basketball Team").build();
+
+// Start a basketball match
+MatchFactory<BasketballMatch> basketballMatchFactory = new BasketballMatchFactory();
+MatchInterface basketballMatch = basketballMatchFactory.createMatchBuilder(homeBasketballTeam, awayBasketballTeam).build();
+scoreboard.addMatch(basketballMatch);
+
+// Start a football match with a specific scoring strategy mode
+MatchFactory<FootballMatch> footballMatchFactory = new FootballMatchFactory();
+MatchInterface footballMatch = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                             .scoringStrategyMode(ScoringStrategyMode.CLASSIC) // or FUNCTIONAL1, FUNCTIONAL2
                                             .build();
+scoreboard.addMatch(footballMatch);
 
 // Start a match using the classic strategy pattern
 MatchFactory footballMatchFactory = new FootballMatchFactory();
-MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+MatchInterface match = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                             .scoringStrategyMode(ScoringStrategyMode.CLASSIC) 
                                             .scoringStrategy(ScoringStrategy.forFootballNormalTime())
                                             .build();
 scoreboard.addMatch(match);
 
 // Start a match using the first functional strategy approach
-MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+MatchInterface match = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                             .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL1) 
                                             .scoringStrategyFunctional1(ScoringStrategiesFunctional1.footballNormalTimeScoringStrategy)
                                             .build();
 scoreboard.addMatch(match);
 
 // Start a match using the second functional strategy approach with enums
-MatchInterface match = footballMatchFactory.createMatchBuilder("Home Team", "Away Team")
+MatchInterface match = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                             .scoringStrategyMode(ScoringStrategyMode.FUNCTIONAL2) 
                                             .scoringStrategyFunctional2(ScoringStrategyType.FOOTBALL_NORMAL_TIME)
                                             .build();
@@ -124,8 +178,139 @@ matchFunctional2.setScoringStrategyFunctional2(ScoringStrategyType.FOOTBALL_EXTR
 // Updating score with the default scoring strategy
 scoreboard.updateScore(match, 1, 0);
 
-// Finishing a match and removing it from the active scoreboard
+// Finishing a match and removing it from the active scoreboard****
 scoreboard.finishMatch(match);
 
 // Retrieving a summary of ongoing matches, sorted by total score and start time
 List<MatchInterface> summary = scoreboard.getSummary();
+
+// Create a Match and Register Observers
+// Create teams
+Team<FootballPlayer> homeFootballTeam = new FootballTeam.Builder().name("Home Football Team").build();
+Team<FootballPlayer> awayFootballTeam = new FootballTeam.Builder().name("Away Football Team").build();
+
+// Create a football match
+MatchFactory<FootballMatch> footballMatchFactory = new FootballMatchFactory();
+FootballMatch footballMatch = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
+                                                   .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
+                                                   .build();
+
+// Create and register an observer
+MatchObserver matchObserver = new MatchObserver();
+footballMatch.registerObserver(matchObserver);
+
+// Add Events During the Match
+// Simulate a goal event
+FootballPlayer scorer = new FootballPlayer.Builder().name("John Doe").team(homeFootballTeam).build();
+FootballPlayer assistant = new FootballPlayer.Builder().name("Jane Doe").team(homeFootballTeam).build();
+((FootballEventManager)footballMatch.getEventManager()).addGoalEvent(scorer, assistant);
+
+// Notify all observers about the goal event
+footballMatch.notifyObservers(new MatchChangeEvent(footballMatch, EventType.GOAL));
+
+// Using the Basketball Event Manager
+// Create basketball teams
+Team<BasketballPlayer> homeBasketballTeam = new BasketballTeam.Builder().name("Home Basketball Team").build();
+Team<BasketballPlayer> awayBasketballTeam = new BasketballTeam.Builder().name("Away Basketball Team").build();
+
+// Create a basketball match
+MatchFactory<BasketballMatch> basketballMatchFactory = new BasketballMatchFactory();
+BasketballMatch basketballMatch = basketballMatchFactory.createMatchBuilder(homeBasketballTeam, awayBasketballTeam)
+                                                        .build();
+
+// Register an observer for basketball events
+basketballMatch.getEventManager().registerObserver(matchObserver);
+
+// Simulate points scored
+BasketballPlayer scorerBasketball = new BasketballPlayer.Builder().name("James Smith").team(homeBasketballTeam).build();
+((BasketballEventManager)basketballMatch.getEventManager()).addPointsScoredEvent(scorerBasketball, 3);
+
+// Notify all observers about the points scored event
+basketballMatch.notifyObservers(new MatchChangeEvent(basketballMatch, EventType.POINTS_SCORED));
+```
+
+## Example: Using the Live Football World Cup Scoreboard Library
+
+### Setting Up and Running a Football Match
+
+This example demonstrates how to create a football match, score goals, end the match, and validate the outcomes using an observer to monitor events.
+
+```java
+package com.sportradar.exercise.match;
+
+import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
+import com.sportradar.exercise.observer.MatchObserver;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class FootballMatchUsageExample {
+    private FootballMatchFactory factory;
+    private Team<FootballPlayer> homeTeam;
+    private Team<FootballPlayer> awayTeam;
+    private FootballMatch match;
+    private MatchObserver observer;
+
+    @Before
+    public void setUp() {
+        // Initialize factory and create teams
+        factory = new FootballMatchFactory();
+        homeTeam = new Team.Builder<FootballPlayer>().name("Team A").build();
+        awayTeam = new Team.Builder<FootballPlayer>().name("Team B").build();
+
+        // Add players to teams
+        homeTeam.addPlayer(new FootballPlayer.Builder().name("John Doe").team(homeTeam).build());
+        awayTeam.addPlayer(new FootballPlayer.Builder().name("Joe Smith").team(awayTeam).build());
+
+        // Create the match and register an observer
+        match = factory.createMatchBuilder(homeTeam, awayTeam).build();
+        observer = new MatchObserver();
+        match.registerObserver(observer);
+    }
+
+    @Test
+    public void testMatchFlow() {
+        // Start the match
+        match.startMatch();
+
+        // Simulate scoring events
+        match.scoreGoal(homeTeam.getRoster().get(0), null);
+        match.scoreGoal(homeTeam.getRoster().get(0), null);
+
+        // End the match
+        match.finishMatch();
+
+        // Assertions to ensure the match flowed as expected
+        assertEquals("Expected number of events should be correct", 6, match.getEvents().size());
+        MatchEvent<?> firstGoalEvent = match.getEvents().stream()
+                .filter(e -> e.getEventType() == EventType.GOAL)
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull("Goal event should exist", firstGoalEvent);
+        assertEquals("First goal should be scored by Maradona", "John Doe", firstGoalEvent.getInvolvedPlayers().get(0).getName());
+        assertTrue("Observer should have received the event", observer.isEventReceived());
+    }
+}
+```
+### Explanation
+
+#### Setup Phase
+- **Teams and Players**: The teams (`Argentina` and `England`) and players (`Diego Maradona` and `Peter Shilton`) are created using builders, ensuring detailed setup before the match begins.
+- **Observer Registration**: A `MatchObserver` is initialized and registered to the match to monitor and react to various match events.
+
+#### Match Execution
+- **Starting the Match**: The match is initiated, transitioning from a non-started to an in-progress state.
+- **Scoring Events**: Diego Maradona scores two iconic goals, dubbed "Hand of God" and "Goal of the Century". These events are dynamically added to the match's event list.
+- **Ending the Match**: The match is concluded, and its status is updated to finished.
+
+#### Assertions
+- **Event Verification**: The test confirms that six events were correctly logged (starting, two goals, and ending the match, with each goal triggering a score update).
+- **Goal Event Details**: The details of the first goal event are examined to verify that Diego Maradona is correctly recorded as the scorer.
+- **Observer Notification**: It is verified that the observer received notifications, demonstrating the observer pattern's effectiveness within the library.
+
+This example serves as a comprehensive guide for leveraging the Live Football Scoreboard Library to manage and monitor football matches effectively, showcasing real-world application of match setup, event handling, and observer notifications.
+
+

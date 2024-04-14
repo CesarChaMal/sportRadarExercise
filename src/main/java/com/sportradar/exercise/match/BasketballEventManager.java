@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BasketballEventManager implements EventManager {
 //    private final List<MatchEvent<?>> events = new ArrayList<>();
-    private MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
+    private final MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
     private final Match match;
     private final MatchStateController stateController;
     private CommonEventManager commonEventManager;
@@ -24,8 +24,12 @@ public class BasketballEventManager implements EventManager {
     }
 
     public void addPointsScoredEvent(BasketballPlayer scorer, int points) {
-        List<BasketballPlayer> involvedPlayers = Collections.singletonList(scorer);
-        addEvent(EventType.POINTS_SCORED, involvedPlayers, points);
+        Team<?> scoringTeam = scorer.getTeam();
+//        List<BasketballPlayer> involvedPlayers = Collections.singletonList(scorer);
+        List<BasketballPlayer> involvedPlayers = List.of(scorer);
+        EventType eventType = EventType.determineEventTypeByPoints(points);
+        addEvent(eventType, involvedPlayers, points);
+        match.incrementScore(EventType.POINTS_SCORED, scoringTeam, points);
     }
 
     public void addFoulEvent(BasketballPlayer player) {
@@ -71,16 +75,18 @@ public class BasketballEventManager implements EventManager {
     }
 
     public void registerObserver(Observer<MatchChangeEvent> observer) {
-        matchEventNotifier.registerObserver(observer);
+//        matchEventNotifier.registerObserver(observer);
+        commonEventManager.registerObserver(observer);
     }
 
     public void removeObserver(Observer<MatchChangeEvent> observer) {
-        matchEventNotifier.removeObserver(observer);
+//        matchEventNotifier.removeObserver(observer);
+        commonEventManager.removeObserver(observer);
     }
 
-    @Override
     public void notifyObservers(MatchChangeEvent matchChangeEvent) {
-        matchEventNotifier.notifyObservers(matchChangeEvent);
+//        matchEventNotifier.notifyObservers(matchChangeEvent);
+        commonEventManager.notifyObservers(matchChangeEvent);
     }
 
     @Override
@@ -88,10 +94,12 @@ public class BasketballEventManager implements EventManager {
         return matchEventNotifier;
     }
 
+/*
     @Override
     public void setMatchEventNotifier(MatchEventNotifier<MatchChangeEvent>  notifier) {
         this.matchEventNotifier = notifier;
     }
+*/
 
     @Override
     public void startMatch() {

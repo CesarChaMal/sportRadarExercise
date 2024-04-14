@@ -60,7 +60,7 @@ public class AbstractFactoryTest {
 
 //        match.setEnableValidationOfStrategyMode(true);
         match.setScoringStrategy(ScoringStrategy.forFootballNormalTime());
-        match.updateScore(1, 0);
+        match.updateScore(EventType.SCORE_UPDATE, 1, 0);
         assertEquals("Score should update correctly in CLASSIC mode", 1, match.getHomeScore());
 
         match.setStrategyMode(ScoringStrategyMode.FUNCTIONAL1);
@@ -81,7 +81,7 @@ public class AbstractFactoryTest {
                 .state(MatchState.forInProgressState())
                 .build();
 
-        match.updateScore(2, 2);
+        match.updateScore(EventType.SCORE_UPDATE, 2, 2);
         assertEquals("Initial scores should be set", 2, match.getHomeScore());
 
 //        match.setEnableValidationOfStrategyMode(true);

@@ -9,5 +9,5 @@ public interface ObserverManagement {
     void removeObserver(Observer<MatchChangeEvent> observer);
     void notifyObservers(MatchChangeEvent matchChangeEvent);
     MatchEventNotifier<MatchChangeEvent> getMatchEventNotifier();
-    void setMatchEventNotifier(MatchEventNotifier<MatchChangeEvent>  notifier);
+//    void setMatchEventNotifier(MatchEventNotifier<MatchChangeEvent>  notifier);
 }

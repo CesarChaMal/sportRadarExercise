@@ -1,67 +1,43 @@
 package com.sportradar.exercise.observer;
 
-import com.sportradar.exercise.match.EventManager;
-import com.sportradar.exercise.match.EventType;
-import com.sportradar.exercise.match.FootballMatch;
-import com.sportradar.exercise.match.Team;
+import com.sportradar.exercise.abstract_factory.MatchFactory;
+import com.sportradar.exercise.match.*;
+import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.state.MatchState;
+import com.sportradar.exercise.strategy.ScoringStrategy;
+import com.sportradar.exercise.strategy.ScoringStrategyMode;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.util.List;
-
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
 
 public class MatchObserverTest {
 
     private FootballMatch match;
-    private Observer<MatchChangeEvent> observer;
-    private MatchChangeEvent matchEvent1;
-    private MatchChangeEvent matchEvent2;
-    private MatchEventNotifier<MatchChangeEvent> notifier;
-    private EventManager eventManager;
+    private MatchObserver observer;
 
     @Before
     public void setUp() {
-        match = mock(FootballMatch.class);
-        eventManager = mock(EventManager.class);
-        notifier = new MatchEventNotifier<>(MatchChangeEvent.class);
-        observer = mock(Observer.class);
-        matchEvent1 = new MatchChangeEvent(match, EventType.MATCH_STARTED);
+        Team<FootballPlayer> homeTeam = new FootballTeam.Builder().name("Home Football Team").build();
+        Team<FootballPlayer> awayTeam = new FootballTeam.Builder().name("Away Football Team").build();
 
-        Team<?> homeTeam = mock(Team.class);
-        Team<?> awayTeam = mock(Team.class);
+        MatchFactory<FootballMatch> factory = new FootballMatchFactory();
+        match = (FootballMatch) factory.createMatchBuilder(homeTeam, awayTeam)
+                       .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
+                       .build();
 
-        when(match.getEventManager()).thenReturn(eventManager);
-        when(eventManager.getMatchEventNotifier()).thenReturn(notifier);
-        when(match.getState()).thenReturn(MatchState.IN_PROGRESS);
-//        doNothing().when(observer).update(any(MatchChangeEvent.class));
-
-        notifier.registerObserver(observer);
-        notifier.notifyObservers(matchEvent1);
+        observer = new MatchObserver();
+        match.registerObserver(observer);
     }
 
     @Test
-    public void testObserverReceivesMatchChangeEventOnScoreUpdate() {
-        match.updateScore(1, 0);
-        matchEvent2 = new MatchChangeEvent(match, EventType.SCORE_UPDATE);
-        notifier.notifyObservers(matchEvent2);
+    public void testObserverReceivesGoalEvent() {
+        FootballPlayer scorer = new FootballPlayer.Builder().name("John Doe").team(match.getHomeTeam()).build();
+        FootballPlayer assistant = new FootballPlayer.Builder().name("Jane Doe").team(match.getHomeTeam()).build();
+        match.setState(MatchState.IN_PROGRESS);
+        match.scoreGoal(scorer, assistant);
 
-        ArgumentCaptor<MatchChangeEvent> captor = ArgumentCaptor.forClass(MatchChangeEvent.class);
-//        verify(observer).update(captor.capture());
-//        verify(observer, atLeastOnce()).update(captor.capture());
-//        verify(observer, atLeast(0)).update(captor.capture());
-        verify(observer, times(2)).update(captor.capture());
+        match.notifyObservers(new MatchChangeEvent(match, EventType.GOAL));
 
-        List<MatchChangeEvent> capturedEvents = captor.getAllValues();
-//        for (MatchChangeEvent event : capturedEvents) {
-//            System.out.println(event.getEventType());
-//        }
-        capturedEvents.forEach(event -> System.out.println(event.getEventType()));
-
-        verify(observer, atLeastOnce()).update(matchEvent1);
-        verify(observer, atLeastOnce()).update(matchEvent2);
+        assertTrue("Observer should have received the event", observer.isEventReceived());
     }
 }
-

@@ -2,13 +2,14 @@ package com.sportradar.exercise.match;
 
 import com.sportradar.exercise.observer.MatchChangeEvent;
 import com.sportradar.exercise.observer.MatchEventNotifier;
+import com.sportradar.exercise.observer.Observer;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CommonEventManager {
+public class CommonEventManager  {
     private List<MatchEvent<?>> events = new ArrayList<>();
     private MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
     private Match match;
@@ -43,5 +44,17 @@ public class CommonEventManager {
     public List<MatchEvent<?>> getEvents() {
 //        return Collections.unmodifiableList(events);
         return new ArrayList<>(events);
+    }
+
+    public void registerObserver(Observer<MatchChangeEvent> observer) {
+        matchEventNotifier.registerObserver(observer);
+    }
+
+    public void removeObserver(Observer<MatchChangeEvent> observer) {
+        matchEventNotifier.removeObserver(observer);
+    }
+
+    public void notifyObservers(MatchChangeEvent matchChangeEvent) {
+        matchEventNotifier.notifyObservers(matchChangeEvent);
     }
 }

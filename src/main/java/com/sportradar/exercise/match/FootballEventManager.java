@@ -11,7 +11,7 @@ import java.util.List;
 
 public class FootballEventManager implements EventManager {
 //    private final List<MatchEvent<?>> events = new ArrayList<>();
-    private MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
+    private final MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
     private final Match match;
     private final MatchStateController stateController;
     private CommonEventManager commonEventManager;
@@ -24,10 +24,23 @@ public class FootballEventManager implements EventManager {
     }
 
     public void addGoalEvent(FootballPlayer scorer, FootballPlayer assistant) {
+        Team<?> scoringTeam = scorer.getTeam();
         List<FootballPlayer> involvedPlayers = new ArrayList<>();
         involvedPlayers.add(scorer);
         if (assistant != null) involvedPlayers.add(assistant);
-        addEvent(EventType.GOAL, involvedPlayers);
+        addEvent(EventType.GOAL, involvedPlayers, 1);
+        match.incrementScore(EventType.GOAL, scoringTeam, 1);
+    }
+
+    public void addEvent(EventType eventType, List<? extends Player> involvedPlayers, int points) {
+        MatchEvent<?> event = new MatchEvent.Builder<Player>()
+                .eventType(eventType)
+                .timestamp(Instant.now())
+                .involvedPlayers(new ArrayList<>(involvedPlayers))
+                .additionalData("points", points)
+                .match(match)
+                .build();
+        commonEventManager.addEventToList(event);
     }
 
     public void addCardEvent(EventType cardType, FootballPlayer player) {
@@ -73,16 +86,18 @@ public class FootballEventManager implements EventManager {
     }
 
     public void registerObserver(Observer<MatchChangeEvent> observer) {
-        matchEventNotifier.registerObserver(observer);
+//        matchEventNotifier.registerObserver(observer);
+        commonEventManager.registerObserver(observer);
     }
 
     public void removeObserver(Observer<MatchChangeEvent> observer) {
-        matchEventNotifier.removeObserver(observer);
+//        matchEventNotifier.removeObserver(observer);
+        commonEventManager.removeObserver(observer);
     }
 
-    @Override
     public void notifyObservers(MatchChangeEvent matchChangeEvent) {
-        matchEventNotifier.notifyObservers(matchChangeEvent);
+//        matchEventNotifier.notifyObservers(matchChangeEvent);
+        commonEventManager.notifyObservers(matchChangeEvent);
     }
 
     @Override
@@ -90,10 +105,12 @@ public class FootballEventManager implements EventManager {
         return matchEventNotifier;
     }
 
+/*
     @Override
     public void setMatchEventNotifier(MatchEventNotifier<MatchChangeEvent>  notifier) {
         this.matchEventNotifier = notifier;
     }
+*/
 
     @Override
     public void startMatch() {

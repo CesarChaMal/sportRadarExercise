@@ -1,5 +1,6 @@
 package com.sportradar.exercise.strategy;
 
+import com.sportradar.exercise.match.EventType;
 import com.sportradar.exercise.match.Match;
 
 public class BasketballExtraTimeScoringStrategy implements ScoringStrategy, ScoreApplier {
@@ -7,7 +8,7 @@ public class BasketballExtraTimeScoringStrategy implements ScoringStrategy, Scor
     public void calculateScore(Match match, int homeScore, int awayScore) {
         int currentHomeScore = match.getHomeScore();
         int currentAwayScore = match.getAwayScore();
-        match.updateScore(currentHomeScore + homeScore, currentAwayScore + awayScore);
+        match.updateScore(EventType.SCORE_UPDATE, currentHomeScore + homeScore, currentAwayScore + awayScore);
     }
 
     @Override

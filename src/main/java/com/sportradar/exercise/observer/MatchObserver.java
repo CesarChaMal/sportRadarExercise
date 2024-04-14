@@ -1,11 +1,14 @@
 package com.sportradar.exercise.observer;
 
+import static java.lang.System.out;
+
 public class MatchObserver implements Observer<MatchChangeEvent> {
     private boolean eventReceived = false;
 
     @Override
     public void update(MatchChangeEvent event) {
-        System.out.println("MatchChangeEvent received for match: " + event.getMatch());
+        out.println("MatchChangeEvent received for match: " + event.getMatch());
+        out.println("Event details: " + event.getDetails());
         eventReceived = true;
     }
 

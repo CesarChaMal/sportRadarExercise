@@ -1,10 +1,7 @@
 package com.sportradar.exercise.observer;
 
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
-import com.sportradar.exercise.match.FootballMatch;
-import com.sportradar.exercise.match.FootballPlayer;
-import com.sportradar.exercise.match.FootballTeam;
-import com.sportradar.exercise.match.Team;
+import com.sportradar.exercise.match.*;
 import com.sportradar.exercise.state.MatchState;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +49,7 @@ public class MatchObserverIntegrationTest {
     public void testObserverReceivesMatchChangeEventOnScoreUpdate() {
 //        match.setState(MatchState.forInProgressState());
         match.startMatch();
-        match.updateScore(1, 0);
+        match.updateScore(EventType.SCORE_UPDATE, 1, 0);
 
 //        assertEquals("Observer should have been updated exactly once", 1, observer.getUpdateCount());
         assertTrue("Observer should have been updated at least once", observer.getUpdateCount() > 0);

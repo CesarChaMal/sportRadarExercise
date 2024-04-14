@@ -2,6 +2,7 @@ package com.sportradar.exercise.state;
 
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
+import com.sportradar.exercise.match.EventType;
 import com.sportradar.exercise.match.FootballTeam;
 import com.sportradar.exercise.match.Match;
 import com.sportradar.exercise.match.Team;
@@ -37,21 +38,21 @@ public class StateTest {
     public void testFinishedStateBlocksScoreUpdate() {
 //        match.setState(MatchState.forFinishedState());
         match.finishMatch();
-        match.updateScore(1, 0);
+        match.updateScore(EventType.SCORE_UPDATE, 1, 0);
     }
 
     @Test
         public void testInProgressStateAllowsScoreUpdate() {
 //        match.setState(MatchState.forInProgressState());
         match.startMatch();
-        match.updateScore(1, 0);
+        match.updateScore(EventType.SCORE_UPDATE,1, 0);
         assertEquals("Home score should be updated", 1, match.getHomeScore());
         assertEquals("Away score should remain unchanged", 0, match.getAwayScore());
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testNotStartedStateBlocksScoreUpdate() {
-        match.updateScore(1, 0);
+        match.updateScore(EventType.SCORE_UPDATE, 1, 0);
         assertEquals("Home score should be 1", 1, match.getHomeScore());
         assertEquals("Away score should be 0", 0, match.getAwayScore());
     }

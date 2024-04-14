@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MatchSummaryGenerator {
+    //O(n log n
     public List<MatchInterface> generateSummary(List<MatchInterface> matches) {
         var sortedMatches = matches.stream()
                 .sorted(Comparator.comparingInt(MatchInterface::getTotalScore).reversed()

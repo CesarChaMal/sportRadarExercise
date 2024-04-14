@@ -1,6 +1,6 @@
 package com.sportradar.exercise.match;
 
-public class FootballTeam extends Team<FootballPlayer> {
+public final class FootballTeam extends Team<FootballPlayer> {
     private FootballTeam(Builder builder) {
         super(builder);
     }

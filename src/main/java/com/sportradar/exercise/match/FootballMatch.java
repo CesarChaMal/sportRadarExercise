@@ -9,7 +9,8 @@ public class FootballMatch extends Match {
 
     public void scoreHomeGoal(FootballPlayer scorer, FootballPlayer assistant) {
         incrementHomeScore(1);
-        ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
+        FootballEventManager manager = (FootballEventManager) getEventManager();
+        manager.addGoalEvent(scorer, assistant);
         notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
@@ -17,6 +18,14 @@ public class FootballMatch extends Match {
         incrementAwayScore(1);
         ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
         notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
+    }
+
+    public void scoreGoal(FootballPlayer scorer, FootballPlayer assistant) {
+        FootballEventManager manager = (FootballEventManager) getEventManager();
+        if (manager == null) {
+            throw new IllegalStateException("Event manager is not configured for footbal");
+        }
+        manager.addGoalEvent(scorer, assistant);
     }
 
     public static class Builder extends Match.Builder<Builder> {

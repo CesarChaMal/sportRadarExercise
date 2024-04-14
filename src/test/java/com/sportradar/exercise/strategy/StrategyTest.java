@@ -3,6 +3,7 @@ package com.sportradar.exercise.strategy;
 import com.sportradar.exercise.abstract_factory.BasketballMatchFactory;
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
+import com.sportradar.exercise.match.EventType;
 import com.sportradar.exercise.match.FootballTeam;
 import com.sportradar.exercise.match.Match;
 import com.sportradar.exercise.match.Team;
@@ -35,7 +36,7 @@ public class StrategyTest {
     @Test
     public void testFootballExtraTimeScoringStrategy() {
         Match match = createMatchWithStrategy(new FootballMatchFactory(), ScoringStrategy.forFootballExtraTime());
-        match.updateScore(2, 2);
+        match.updateScore(EventType.SCORE_UPDATE, 2, 2);
         match.getScoringStrategy().calculateScore(match, 1, 1);
         assertEquals("Home score should be 3", 3, match.getHomeScore());
         assertEquals("Away score should be 3", 3, match.getAwayScore());
@@ -44,7 +45,7 @@ public class StrategyTest {
     @Test
     public void testBasketballExtraTimeScoringStrategy() {
         Match match = createMatchWithStrategy(new BasketballMatchFactory(), ScoringStrategy.forBasketballExtraTime());
-        match.updateScore(20, 20);
+        match.updateScore(EventType.SCORE_UPDATE, 20, 20);
         match.getScoringStrategy().calculateScore(match, 10, 5);
         assertEquals("Home score should be 30", 30, match.getHomeScore());
         assertEquals("Away score should be 25", 25, match.getAwayScore());
@@ -54,7 +55,7 @@ public class StrategyTest {
     public void testBasketballNormalTimeScoringStrategy() {
         Match match = createMatchWithStrategy(new BasketballMatchFactory(), ScoringStrategy.forBasketballNormalTime());
         match.getScoringStrategy().calculateScore(match, 10, 5);
-        match.updateScore(10, 5);
+        match.updateScore(EventType.SCORE_UPDATE, 10, 5);
         assertEquals("Home score should be 10", 10, match.getHomeScore());
         assertEquals("Away score should be 5", 5, match.getAwayScore());
     }

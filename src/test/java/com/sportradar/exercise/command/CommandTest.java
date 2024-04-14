@@ -1,72 +1,75 @@
 package com.sportradar.exercise.command;
 
+import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.abstract_factory.MatchFactory;
-import com.sportradar.exercise.match.Match;
-import com.sportradar.exercise.match.MatchInterface;
-import com.sportradar.exercise.match.Score;
-import com.sportradar.exercise.match.Team;
+import com.sportradar.exercise.match.*;
 import com.sportradar.exercise.scoring.Scoreboard;
-import com.sportradar.exercise.state.FinishedState;
-import com.sportradar.exercise.state.InProgressState;
+import com.sportradar.exercise.state.MatchState;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import java.util.Optional;
+
+import static org.junit.Assert.*;
 
 public class CommandTest {
     private Scoreboard scoreboard;
-    private MatchFactory matchFactory;
-    private MatchInterface match;
-    private Team<?> homeTeam;
-    private Team<?> awayTeam;
+    private MatchFactory<FootballMatch> matchFactory;
+    private FootballMatch match;
+    private Team<FootballPlayer> homeTeam;
+    private Team<FootballPlayer> awayTeam;
 
     @Before
     public void setUp() {
-        scoreboard = Mockito.mock(Scoreboard.class);
-        matchFactory = Mockito.mock(MatchFactory.class);
-        match = Mockito.mock(Match.class);
-        homeTeam = Mockito.mock(Team.class);
-        awayTeam = Mockito.mock(Team.class);
+        matchFactory = new FootballMatchFactory();
+        scoreboard = new Scoreboard(matchFactory);
+        homeTeam = new FootballTeam.Builder().name("Home Team").build();
+        awayTeam = new FootballTeam.Builder().name("Away Team").build();
 
-        Match.Builder builderMock = Mockito.mock(Match.Builder.class);
-
-        when(builderMock.build()).thenReturn((Match) match);
-        when(matchFactory.createMatchBuilder(any(Team.class), any(Team.class))).thenReturn(builderMock);
+        match = (FootballMatch) matchFactory.createMatchBuilder(homeTeam, awayTeam)
+                            .build();
     }
 
     @Test
     public void testStartMatchCommand() {
         StartMatchCommand startMatchCommand = new StartMatchCommand(scoreboard, matchFactory, homeTeam, awayTeam);
         startMatchCommand.execute();
-        verify(scoreboard, times(1)).addMatch(any(MatchInterface.class));
+
+        Optional<MatchInterface> updatedMatchOpt = scoreboard.getMatch(match.getHomeTeam(), match.getAwayTeam());
+        assertTrue("Match should exist", updatedMatchOpt.isPresent());
+        MatchInterface updatedMatch = updatedMatchOpt.get();
+
+        assertFalse("Scoreboard should contain the match", scoreboard.getMatches().isEmpty());
+        assertTrue("Match should be in progress", updatedMatch.getState() == MatchState.IN_PROGRESS);
     }
 
     @Test
     public void testUpdateScoreCommand_AllowsUpdate() {
-        when(match.getHomeScore()).thenReturn(1);
-        when(match.getAwayScore()).thenReturn(1);
-        when(match.getState()).thenReturn(new InProgressState());
-        doNothing().when(match).updateScore(anyInt(), anyInt());
+        match.setState(MatchState.IN_PROGRESS);
+        match.setHomeScore(0);
+        match.setAwayScore(0);
 
         UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, 1, 1);
         updateScoreCommand.execute();
-
-        verify(match, times(1)).updateScore(1, 1);
+        assertEquals("Home score should be updated", 1, match.getHomeScore());
+        assertEquals("Away score should be updated", 1, match.getAwayScore());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdateScoreCommand_BlocksUpdate() {
-        when(match.getState()).thenReturn(new FinishedState());
+        match.setState(MatchState.FINISHED);
         UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, 1, 1);
         updateScoreCommand.execute();
     }
 
     @Test
     public void testFinishMatchCommand() {
+        match.setState(MatchState.IN_PROGRESS);
+        scoreboard.addMatch(match);
+
         FinishMatchCommand finishMatchCommand = new FinishMatchCommand(scoreboard, match);
         finishMatchCommand.execute();
-        verify(scoreboard, times(1)).removeMatch(match);
+        assertTrue("Match should be finished", match.getState() == MatchState.FINISHED);
+        assertTrue("Scoreboard should no longer contain the match", scoreboard.getMatches().isEmpty());
     }
 }
