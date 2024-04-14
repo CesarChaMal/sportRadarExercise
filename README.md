@@ -298,17 +298,17 @@ public class FootballMatchUsageExample {
 ### Explanation
 
 #### Setup Phase
-- **Teams and Players**: The teams (`Argentina` and `England`) and players (`Diego Maradona` and `Peter Shilton`) are created using builders, ensuring detailed setup before the match begins.
+- **Teams and Players**: The teams (`Team A` and `Team B`) and players (`John Doe` and `Joe Smith`) are created using builders, ensuring detailed setup before the match begins.
 - **Observer Registration**: A `MatchObserver` is initialized and registered to the match to monitor and react to various match events.
 
 #### Match Execution
 - **Starting the Match**: The match is initiated, transitioning from a non-started to an in-progress state.
-- **Scoring Events**: Diego Maradona scores two iconic goals, dubbed "Hand of God" and "Goal of the Century". These events are dynamically added to the match's event list.
+- **Scoring Events**: John Doe scores two goals. These events are dynamically added to the match's event list.
 - **Ending the Match**: The match is concluded, and its status is updated to finished.
 
 #### Assertions
 - **Event Verification**: The test confirms that six events were correctly logged (starting, two goals, and ending the match, with each goal triggering a score update).
-- **Goal Event Details**: The details of the first goal event are examined to verify that Diego Maradona is correctly recorded as the scorer.
+- **Goal Event Details**: The details of the first goal event are examined to verify that John Doe is correctly recorded as the scorer.
 - **Observer Notification**: It is verified that the observer received notifications, demonstrating the observer pattern's effectiveness within the library.
 
 This example serves as a comprehensive guide for leveraging the Live Football Scoreboard Library to manage and monitor football matches effectively, showcasing real-world application of match setup, event handling, and observer notifications.
