@@ -7,7 +7,8 @@ public class MatchObserver implements Observer<MatchChangeEvent> {
 
     @Override
     public void update(MatchChangeEvent event) {
-        out.println("MatchChangeEvent received for match: " + event.getMatch());
+//        out.println("MatchChangeEvent received for match: " + event.getMatch());
+        out.println("MatchChangeEvent received for match: " + event.match());
         out.println("Event details: " + event.getDetails());
         eventReceived = true;
     }

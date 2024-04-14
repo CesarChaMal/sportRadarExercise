@@ -28,6 +28,13 @@ public class Scoreboard {
         this.matchFactory = matchFactory;
     }
 
+    public Scoreboard(MatchFactory matchFactory, CommandExecutor commandExecutor, MatchSummaryGenerator summaryGenerator) {
+        this.matches = new ArrayList<>();
+        this.commandExecutor = commandExecutor;
+        this.summaryGenerator = summaryGenerator;
+        this.matchFactory = matchFactory;
+    }
+
     public void startMatch(Team<?> homeTeam, Team<?> awayTeam) {
         StartMatchCommand startMatchCommand = new StartMatchCommand(this, this.matchFactory, homeTeam, awayTeam);
         commandExecutor.executeCommand(startMatchCommand);

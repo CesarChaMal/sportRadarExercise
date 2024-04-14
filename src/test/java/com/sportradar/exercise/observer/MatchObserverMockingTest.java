@@ -58,7 +58,8 @@ public class MatchObserverMockingTest {
 //        for (MatchChangeEvent event : capturedEvents) {
 //            System.out.println(event.getEventType());
 //        }
-        capturedEvents.forEach(event -> System.out.println(event.getEventType()));
+//        capturedEvents.forEach(event -> System.out.println(event.getEventType()));
+        capturedEvents.forEach(event -> System.out.println(event.eventType()));
 
         verify(observer, atLeastOnce()).update(matchEvent1);
         verify(observer, atLeastOnce()).update(matchEvent2);

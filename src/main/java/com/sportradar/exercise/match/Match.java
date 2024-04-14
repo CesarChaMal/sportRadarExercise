@@ -181,7 +181,8 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
     }
 
     public void notifyObservers(MatchChangeEvent matchChangeEvent) {
-        MatchChangeEvent event = new MatchChangeEvent(this, matchChangeEvent.getEventType());
+//        MatchChangeEvent event = new MatchChangeEvent(this, matchChangeEvent.getEventType());
+        MatchChangeEvent event = new MatchChangeEvent(this, matchChangeEvent.eventType());
         eventManager.notifyObservers(event);
     }
 

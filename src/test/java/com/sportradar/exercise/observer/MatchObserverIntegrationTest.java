@@ -25,7 +25,8 @@ public class MatchObserverIntegrationTest {
             updateCount++;
             System.out.println("Update received: Match state updated in the observer, count: " + updateCount);
             assertNotNull("Event should not be null", event);
-            assertSame("Event should contain the correct match", match, event.getMatch());
+//            assertSame("Event should contain the correct match", match, event.getMatch());
+            assertSame("Event should contain the correct match", match, event.match());
         }
 
         public int getUpdateCount() {
