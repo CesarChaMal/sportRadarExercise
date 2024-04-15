@@ -40,6 +40,9 @@ public class FootballMatch extends Match {
 
         @Override
         public FootballMatch build() {
+            if (super.eventManagerFactory == null) {
+                super.eventManagerFactory = match -> new FootballEventManager((FootballMatch) match);
+            }
             return new FootballMatch(this);
         }
     }

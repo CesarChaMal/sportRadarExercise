@@ -22,7 +22,8 @@ public class CommandTest {
     @Before
     public void setUp() {
         matchFactory = new FootballMatchFactory();
-        scoreboard = new Scoreboard(matchFactory);
+//        scoreboard = new Scoreboard(matchFactory);
+        scoreboard = Scoreboard.getInstance(matchFactory);
         homeTeam = new FootballTeam.Builder().name("Home Team").build();
         awayTeam = new FootballTeam.Builder().name("Away Team").build();
 
@@ -39,7 +40,7 @@ public class CommandTest {
         assertTrue("Match should exist", updatedMatchOpt.isPresent());
         MatchInterface updatedMatch = updatedMatchOpt.get();
 
-        assertFalse("Scoreboard should contain the match", scoreboard.getMatches().isEmpty());
+        assertFalse("Scoreboard should contain the match", scoreboard.getAllMatches().isEmpty());
         assertTrue("Match should be in progress", updatedMatch.getState() == MatchState.IN_PROGRESS);
     }
 
@@ -70,6 +71,6 @@ public class CommandTest {
         FinishMatchCommand finishMatchCommand = new FinishMatchCommand(scoreboard, match);
         finishMatchCommand.execute();
         assertTrue("Match should be finished", match.getState() == MatchState.FINISHED);
-        assertTrue("Scoreboard should no longer contain the match", scoreboard.getMatches().isEmpty());
+        assertTrue("Scoreboard should no longer contain the match", scoreboard.getAllMatches().isEmpty());
     }
 }

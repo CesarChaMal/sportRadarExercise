@@ -50,6 +50,7 @@ public class BasketballMatch extends Match {
         public Builder(Team<?> homeTeam, Team<?> awayTeam) {
             super(homeTeam, awayTeam);
         }
+
         @Override
         protected Builder self() {
             return this;
@@ -57,6 +58,9 @@ public class BasketballMatch extends Match {
 
         @Override
         public BasketballMatch build() {
+            if (super.eventManagerFactory == null) {
+                super.eventManagerFactory = match -> new BasketballEventManager((BasketballMatch) match);
+            }
             return new BasketballMatch(this);
         }
     }
