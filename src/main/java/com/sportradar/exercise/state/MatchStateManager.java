@@ -11,6 +11,7 @@ import com.sportradar.exercise.strategy_functionall2.ScoringStrategyType;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 
 import static com.sportradar.exercise.state.MatchState.*;
@@ -20,6 +21,7 @@ public class MatchStateManager {
     private final Match match;
     private final Map<ScoringStrategyMode, BiConsumer<Integer, Integer>> scoringStrategies = new EnumMap<>(ScoringStrategyMode.class);
     private static final Map<MatchState, EventType> stateToEventTypeMap = new HashMap<>();
+    private final ReentrantLock lock = new ReentrantLock();
 
     static {
         stateToEventTypeMap.put(NOT_STARTED, EventType.MATCH_NO_STARTED);
@@ -36,12 +38,18 @@ public class MatchStateManager {
     }
 
     public void transitionState(MatchState newState) {
-        if (!currentState.isValidTransition(newState)) {
-            throw new UnsupportedOperationException("Invalid state transition from "
-                    + currentState.getClass().getSimpleName() + " to " + newState.getClass().getSimpleName());
+        lock.lock();
+        try {
+            if (!currentState.isValidTransition(newState)) {
+                String error = String.format("Invalid state transition from %s to %s for match ID %s",
+                        currentState, newState, match.getId());
+                throw new UnsupportedOperationException(error);
+            }
+            currentState = newState;
+            match.notifyObservers(new MatchChangeEvent(match, getEventTypeForState(newState)));
+        } finally {
+            lock.unlock();
         }
-        currentState = newState;
-        match.notifyObservers(new MatchChangeEvent(match, getEventTypeForState(newState)));
     }
 
     private EventType getEventTypeForState(MatchState state) {
@@ -68,21 +76,25 @@ public class MatchStateManager {
     }
 
     public void handleScoreUpdate(int homeScore, int awayScore) {
-        if (!currentState.canUpdateScore()) {
-            throw new UnsupportedOperationException("Score update not allowed in current state: " + currentState.getClass().getSimpleName());
+        lock.lock();
+        try {
+            if (!currentState.canUpdateScore()) {
+                throw new UnsupportedOperationException("Score update not allowed in current state: " + currentState.getClass().getSimpleName());
+            }
+            scoringStrategies.getOrDefault(match.getStrategyMode(),
+                            (h, a) -> { throw new UnsupportedOperationException("Unknown scoring strategy mode."); })
+                    .accept(homeScore, awayScore);
+    /*
+            switch (match.getStrategyMode()) {
+                case CLASSIC -> applyScoringStrategy(homeScore, awayScore);
+                case FUNCTIONAL1 -> applyScoringStrategyFunctional1(homeScore, awayScore);
+                case FUNCTIONAL2 -> applyScoringStrategyFunctional2(homeScore, awayScore);
+                default -> throw new UnsupportedOperationException("Unknown scoring strategy mode.");
+            }
+    */
+        } finally {
+            lock.unlock();
         }
-
-        scoringStrategies.getOrDefault(match.getStrategyMode(),
-                        (h, a) -> { throw new UnsupportedOperationException("Unknown scoring strategy mode."); })
-                .accept(homeScore, awayScore);
-/*
-        switch (match.getStrategyMode()) {
-            case CLASSIC -> applyScoringStrategy(homeScore, awayScore);
-            case FUNCTIONAL1 -> applyScoringStrategyFunctional1(homeScore, awayScore);
-            case FUNCTIONAL2 -> applyScoringStrategyFunctional2(homeScore, awayScore);
-            default -> throw new UnsupportedOperationException("Unknown scoring strategy mode.");
-        }
-*/
     }
 
     private void applyScoringStrategy(int homeScore, int awayScore) {

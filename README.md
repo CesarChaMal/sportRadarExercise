@@ -2,11 +2,11 @@
 
 ## Overview
 
-This Live Football Scoreboard Library provides a simulation of real-time tracking for football matches. It offers functionalities to start matches, update scores, finish matches, and generate a sorted summary of matches. The library is now upgraded to version v0.3.0, which introduces support for basketball alongside improved strategies for scoring and state management.
+This Live Football Scoreboard Library provides real-time simulations for tracking football matches and now includes support for basketball. Version v0.4.0 introduces advanced synchronization mechanisms to ensure thread safety and data consistency across various operations.
 
 ## Version
 
-The current version of the Live Football Scoreboard Library is **v0.3.0**. This version introduces basketball match management and enhancements in the scoring system to accommodate different sports.
+The current version of the Live Football Scoreboard Library is **v0.4.0**. This version enhances the library with basketball match management and advanced synchronization strategies.
 
 ## Features
 
@@ -66,6 +66,17 @@ This library incorporates functional programming principles to enhance readabili
 - **Comparator Chains**: Utilizes `Comparator` chains for sorting matches, leveraging lambda expressions and method references for concise and readable sorting logic.
 - **Optional**: Employs `Optional` for safe retrieval of matches, minimizing the risk of `NullPointerException` and simplifying conditional logic.
 - **Stream API**: Leverages the Stream API for filtering and collecting matches, showcasing the power of streams in processing collections.
+
+### Synchronization Techniques
+- **Fine-Grained Locking**: Utilizes more precise locking mechanisms to allow for more concurrent operations while reducing bottlenecks.
+- **Read/Write Locks**: Employs separate locks for reading and writing operations to optimize performance, especially beneficial in high-read scenarios.
+- **Atomic Operations**: Uses atomic variables and operations to manage critical sections of the scoreboard without locking, enhancing efficiency.
+- **Concurrent Data Structures**: Implements thread-safe collections and structures for managing matches and their scores effectively.
+- **Semaphores**: Utilizes semaphores to control access to resources by multiple threads, preventing race conditions and ensuring that only a fixed number of threads can access match starting functions simultaneously.
+- **Executor Services and Futures**: Manages thread execution and resource allocation through executor services, providing a framework for asynchronous task execution. Futures are used to track the progress and results of asynchronous computations, enabling efficient data handling and state management without blocking the main application thread.
+
+### Benefits
+These synchronization techniques are integrated into the library to ensure robust thread safety and to enhance the application’s scalability and responsiveness, particularly in environments with high concurrency demands.
 
 ## Development Approach
 

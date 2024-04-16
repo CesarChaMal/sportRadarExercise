@@ -2,25 +2,39 @@ package com.sportradar.exercise.match;
 
 import com.sportradar.exercise.observer.MatchChangeEvent;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class FootballMatch extends Match {
+    private final ReentrantLock lock = new ReentrantLock();
+
     private FootballMatch(Builder builder) {
         super(builder);
     }
 
-    public void scoreHomeGoal(FootballPlayer scorer, FootballPlayer assistant) {
-        incrementHomeScore(1);
+    public synchronized void scoreHomeGoal(FootballPlayer scorer, FootballPlayer assistant) {
+        lock.lock();
+        try {
+            incrementHomeScore(1);
+        } finally {
+            lock.unlock();
+        }
         FootballEventManager manager = (FootballEventManager) getEventManager();
         manager.addGoalEvent(scorer, assistant);
         notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
-    public void scoreAwayGoal(FootballPlayer scorer, FootballPlayer assistant) {
-        incrementAwayScore(1);
+    public synchronized void scoreAwayGoal(FootballPlayer scorer, FootballPlayer assistant) {
+        lock.lock();
+        try {
+            incrementAwayScore(1);
+        } finally {
+            lock.unlock();
+        }
         ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
         notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
-    public void scoreGoal(FootballPlayer scorer, FootballPlayer assistant) {
+    public synchronized void scoreGoal(FootballPlayer scorer, FootballPlayer assistant) {
         FootballEventManager manager = (FootballEventManager) getEventManager();
         if (manager == null) {
             throw new IllegalStateException("Event manager is not configured for footbal");

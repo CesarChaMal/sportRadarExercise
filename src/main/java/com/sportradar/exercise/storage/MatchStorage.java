@@ -4,9 +4,10 @@ import com.sportradar.exercise.match.MatchInterface;
 
 import java.util.List;
 
-public interface MatchStorage {
-    void addMatch(MatchInterface match);
-    void removeMatch(MatchInterface match);
-    MatchInterface getMatchById(Long matchId);
-    List<MatchInterface> getAllMatches();
+public interface MatchStorage<T extends MatchInterface> {
+    void addMatch(T match);
+    void removeMatch(T match);
+    T getMatchById(Long matchId);
+    List<T> getAllMatches();
+    void clear();
 }

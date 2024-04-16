@@ -3,8 +3,10 @@ package com.sportradar.exercise.match;
 import com.sportradar.exercise.observer.MatchChangeEvent;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BasketballMatch extends Match {
+    private final ReentrantLock lock = new ReentrantLock();
 
     private BasketballMatch(Builder builder) {
         super(builder);
@@ -19,20 +21,30 @@ public class BasketballMatch extends Match {
     }
 
     public void scoreHomePoints(BasketballPlayer scorer, int points) {
-        if (scorer.getTeam().equals(this.getHomeTeam())) {
-            incrementHomeScore(points);
-        } else {
-            throw new IllegalArgumentException("Scorer is not part of the home team");
+        lock.lock();
+        try {
+            if (scorer.getTeam().equals(this.getHomeTeam())) {
+                incrementHomeScore(points);
+            } else {
+                throw new IllegalArgumentException("Scorer is not part of the home team");
+            }
+        } finally {
+            lock.unlock();
         }
         EventType eventType = EventType.determineEventTypeByPoints(points);
         notifyObservers(new MatchChangeEvent(this, eventType));
     }
 
     public void scoreAwayPoints(BasketballPlayer scorer, int points) {
-        if (scorer.getTeam().equals(this.getAwayTeam())) {
-            incrementAwayScore(points);
-        } else {
-            throw new IllegalArgumentException("Scorer is not part of the away team");
+        lock.lock();
+        try {
+            if (scorer.getTeam().equals(this.getAwayTeam())) {
+                incrementAwayScore(points);
+            } else {
+                throw new IllegalArgumentException("Scorer is not part of the away team");
+            }
+        } finally {
+            lock.unlock();
         }
         EventType eventType = EventType.determineEventTypeByPoints(points);
         notifyObservers(new MatchChangeEvent(this, eventType));

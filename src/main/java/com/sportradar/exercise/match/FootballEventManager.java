@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class FootballEventManager implements EventManager {
 //    private final List<MatchEvent<?>> events = new ArrayList<>();
@@ -15,6 +16,7 @@ public class FootballEventManager implements EventManager {
     private final Match match;
     private final MatchStateController stateController;
     private CommonEventManager commonEventManager;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public FootballEventManager(Match match) {
         this.match = match;
@@ -29,7 +31,12 @@ public class FootballEventManager implements EventManager {
         involvedPlayers.add(scorer);
         if (assistant != null) involvedPlayers.add(assistant);
         addEvent(EventType.GOAL, involvedPlayers, 1);
-        match.incrementScore(EventType.GOAL, scoringTeam, 1);
+        lock.lock();
+        try {
+            match.incrementScore(EventType.GOAL, scoringTeam, 1);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void addEvent(EventType eventType, List<? extends Player> involvedPlayers, int points) {

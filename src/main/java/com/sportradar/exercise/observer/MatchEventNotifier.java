@@ -5,9 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MatchEventNotifier<T extends EventDetails> implements Subject<T> {
-    private Set<Observer<T>> observers = new HashSet<>();
+//    private Set<Observer<T>> observers = new HashSet<>();
+    private final Set<Observer<T>> observers = Collections.newSetFromMap(new ConcurrentHashMap<Observer<T>, Boolean>());
+//    private Set<Observer<T>> observers = new HashSet<>();
     private Class<T> eventType;
 
     public MatchEventNotifier(Class<T> eventType) {

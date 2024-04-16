@@ -8,11 +8,16 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CommonEventManager  {
-    private List<MatchEvent<?>> events = new ArrayList<>();
+//    private List<MatchEvent<?>> events = new ArrayList<>();
+    private List<MatchEvent<?>> events = new CopyOnWriteArrayList<>();
     private MatchEventNotifier<MatchChangeEvent> matchEventNotifier;
     private Match match;
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public CommonEventManager(Match match, MatchEventNotifier<MatchChangeEvent> matchEventNotifier) {
         this.match = match;
@@ -24,13 +29,18 @@ public class CommonEventManager  {
     }
 
     public void addEvent(EventType eventType, List<? extends Player> involvedPlayers) {
-        MatchEvent<?> event = new MatchEvent.Builder<Player>()
-                .eventType(eventType)
-                .timestamp(Instant.now())
-                .involvedPlayers(new ArrayList<>(involvedPlayers))
-                .match(match)
-                .build();
-        events.add(event);
+        lock.writeLock().lock();
+        try {
+            MatchEvent<?> event = new MatchEvent.Builder<Player>()
+                    .eventType(eventType)
+                    .timestamp(Instant.now())
+                    .involvedPlayers(new ArrayList<>(involvedPlayers))
+                    .match(match)
+                    .build();
+            events.add(event);
+        } finally {
+            lock.writeLock().unlock(); // Unlock after writing
+        }
     }
 
     public void addScoreUpdateEvent() {
@@ -38,12 +48,23 @@ public class CommonEventManager  {
     }
 
     public void addEventToList(MatchEvent<?> event) {
-        events.add(event);
+        lock.writeLock().lock();
+        try {
+            events.add(event);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public List<MatchEvent<?>> getEvents() {
 //        return Collections.unmodifiableList(events);
-        return new ArrayList<>(events);
+//        return new ArrayList<>(events);
+        lock.readLock().lock();
+        try {
+            return new ArrayList<>(events);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public void registerObserver(Observer<MatchChangeEvent> observer) {
