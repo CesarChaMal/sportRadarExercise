@@ -2,12 +2,14 @@ package com.sportradar.exercise.observer;
 
 import com.sportradar.exercise.abstract_factory.FootballMatchFactory;
 import com.sportradar.exercise.match.*;
+import com.sportradar.exercise.scoring.Scoreboard;
 import com.sportradar.exercise.state.MatchState;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -16,6 +18,7 @@ public class MatchObserverIntegrationTest {
 
     private FootballMatch match;
     private TestObserver observer;
+    private static final Logger logger = Logger.getLogger(MatchObserverIntegrationTest.class.getName());
 
     private class TestObserver implements Observer<MatchChangeEvent> {
         private int updateCount = 0;
@@ -23,7 +26,7 @@ public class MatchObserverIntegrationTest {
         @Override
         public void update(MatchChangeEvent event) {
             updateCount++;
-            System.out.println("Update received: Match state updated in the observer, count: " + updateCount);
+            logger.info("Update received: Match state updated in the observer, count: " + updateCount);
             assertNotNull("Event should not be null", event);
 //            assertSame("Event should contain the correct match", match, event.getMatch());
             assertSame("Event should contain the correct match", match, event.match());

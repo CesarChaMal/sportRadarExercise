@@ -149,7 +149,7 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
     private void handleFutureCompletion(Future<Boolean> future) {
         try {
             Boolean result = future.get(500, TimeUnit.MILLISECONDS);
-            out.println("Future completed with result: " + result);
+            logger.info("Future completed with result: " + result);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             err.println("Task was interrupted.");

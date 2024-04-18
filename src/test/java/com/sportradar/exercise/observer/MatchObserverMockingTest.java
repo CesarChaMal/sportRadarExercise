@@ -4,12 +4,14 @@ import com.sportradar.exercise.match.EventManager;
 import com.sportradar.exercise.match.EventType;
 import com.sportradar.exercise.match.FootballMatch;
 import com.sportradar.exercise.match.Team;
+import com.sportradar.exercise.scoring.Scoreboard;
 import com.sportradar.exercise.state.MatchState;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
 
@@ -21,6 +23,7 @@ public class MatchObserverMockingTest {
     private MatchChangeEvent matchEvent2;
     private MatchEventNotifier<MatchChangeEvent> notifier;
     private EventManager eventManager;
+    private static final Logger logger = Logger.getLogger(MatchObserverMockingTest.class.getName());
 
     @Before
     public void setUp() {
@@ -56,10 +59,11 @@ public class MatchObserverMockingTest {
 
         List<MatchChangeEvent> capturedEvents = captor.getAllValues();
 //        for (MatchChangeEvent event : capturedEvents) {
-//            System.out.println(event.getEventType());
+//            logger.info((event.getEventType());
 //        }
 //        capturedEvents.forEach(event -> System.out.println(event.getEventType()));
-        capturedEvents.forEach(event -> System.out.println(event.eventType()));
+//        capturedEvents.forEach(event -> System.out.println(event.eventType()));
+        capturedEvents.forEach(event -> logger.info(event.eventType().name()));
 
         verify(observer, atLeastOnce()).update(matchEvent1);
         verify(observer, atLeastOnce()).update(matchEvent2);

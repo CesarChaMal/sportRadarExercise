@@ -1,11 +1,15 @@
 package com.sportradar.exercise.decorator;
 
 import com.sportradar.exercise.match.Match;
+import com.sportradar.exercise.scoring.Scoreboard;
 import com.sportradar.exercise.strategy.ScoringStrategy;
+
+import java.util.logging.Logger;
 
 public class MatchOverTime extends MatchDecorator {
     private ScoringStrategy overtimeScoringStrategy;
     private boolean isOvertimeActive = false;
+    private static final Logger logger = Logger.getLogger(MatchOverTime.class.getName());
 
     protected MatchOverTime(Builder builder) {
         super(builder);
@@ -14,13 +18,13 @@ public class MatchOverTime extends MatchDecorator {
 
     public void startOvertime() {
         isOvertimeActive = true;
-        System.out.println("Overtime has started.");
+        logger.info("Overtime has started.");
         this.match.setScoringStrategy(overtimeScoringStrategy);
     }
 
     public void endOvertime() {
         isOvertimeActive = false;
-        System.out.println("Overtime has ended.");
+        logger.info("Overtime has ended.");
     }
 
     public static class Builder extends MatchDecorator.Builder<Builder> {

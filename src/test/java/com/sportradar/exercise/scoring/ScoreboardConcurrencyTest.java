@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -21,6 +22,7 @@ public class ScoreboardConcurrencyTest {
     private FootballMatchFactory matchFactory;
     private Scoreboard scoreboard;
     private ExecutorService executorService;
+    private static final Logger logger = Logger.getLogger(ScoreboardConcurrencyTest.class.getName());
 
     @Before
     public void setUp() {
@@ -127,7 +129,7 @@ match.getHomeScore() >= 1 && match.getHomeScore() <= 10 &&
         service.submit(() -> {
             List<MatchInterface> summary = scoreboard.getSummary();
             assertTrue("Summary should not be empty", !summary.isEmpty());
-            System.out.println("Summary accessed");
+            logger.info("Summary accessed");
         });
 
         service.shutdown();

@@ -1,17 +1,21 @@
 package com.sportradar.exercise.observer;
 
+import com.sportradar.exercise.scoring.Scoreboard;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class MatchEventNotifier<T extends EventDetails> implements Subject<T> {
 //    private Set<Observer<T>> observers = new HashSet<>();
     private final Set<Observer<T>> observers = Collections.newSetFromMap(new ConcurrentHashMap<Observer<T>, Boolean>());
 //    private Set<Observer<T>> observers = new HashSet<>();
     private Class<T> eventType;
+    private static final Logger logger = Logger.getLogger(MatchEventNotifier.class.getName());
 
     public MatchEventNotifier(Class<T> eventType) {
         this.eventType = eventType;
@@ -50,6 +54,6 @@ public class MatchEventNotifier<T extends EventDetails> implements Subject<T> {
     private void debugLog(String message) {
         LocalDateTime now = LocalDateTime.now();
         String formattedTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println(formattedTime + " - " + message);
+        logger.info(formattedTime + " - " + message);
     }
 }
