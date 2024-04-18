@@ -37,6 +37,8 @@ The library utilizes several design patterns and adheres to SOLID principles to 
 - **Command Pattern**: Used to encapsulate all requests to the scoreboard as executable commands, allowing for undo operations and logging changes.
 - **State Pattern**: Manages changes in match state (e.g., from not started, in progress, to finished) in a robust and extensible manner.
 - **Strategy Pattern**: Employs flexible scoring strategies that can adapt to various game rules or phases, such as regular time or extra time. The library enhances this pattern by incorporating functional programming principles, enabling the dynamic application of scoring strategies during a match. This approach not only allows for easy adjustments to scoring logic based on the match context but also streamlines the implementation of diverse and complex scoring rules with minimal code changes.
+- **Singleton Pattern**: Ensures there is a single instance of the Scoreboard class throughout the application, providing a global point of access to it. This pattern is used to control scoreboard interactions and maintain a consistent state across different parts of the system.
+- **Decorator Pattern**: Enhances or modifies the behavior of Match objects during overtime without altering the original classes. This pattern allows the addition of new functionalities such as different scoring strategies or rules specific to overtime periods. Specific implementations like FootballMatchOvertime or BasketballMatchOvertime can extend from base decorator implementations to encapsulate and augment behaviors dynamically.
 
 ### SOLID Principles
 
