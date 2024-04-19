@@ -11,13 +11,13 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class InMemoryMatchStorageTest {
-    private InMemoryMatchStorage storage;
+    private InMemoryMatchStorage<MatchInterface> storage;
     private MatchInterface match1;
     private MatchInterface match2;
 
     @Before
     public void setUp() {
-        storage = new InMemoryMatchStorage();
+        storage = new InMemoryMatchStorage<MatchInterface>();
         match1 = Mockito.mock(MatchInterface.class);
         match2 = Mockito.mock(MatchInterface.class);
         Mockito.when(match1.getId()).thenReturn(1L);
