@@ -27,8 +27,7 @@ public class CommandTest {
         homeTeam = new FootballTeam.Builder().name("Home Team").build();
         awayTeam = new FootballTeam.Builder().name("Away Team").build();
 
-        match = (FootballMatch) matchFactory.createMatchBuilder(homeTeam, awayTeam)
-                            .build();
+        match = (FootballMatch) matchFactory.createMatchBuilder(homeTeam, awayTeam).build();
     }
 
     @Test
@@ -46,9 +45,10 @@ public class CommandTest {
 
     @Test
     public void testUpdateScoreCommand_AllowsUpdate() {
-        match.setState(MatchState.IN_PROGRESS);
-        match.setHomeScore(0);
-        match.setAwayScore(0);
+//        match.setState(MatchState.IN_PROGRESS);
+//        match.setHomeScore(0);
+//        match.setAwayScore(0);
+        match.startMatch();
 
         UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, 1, 1);
         updateScoreCommand.execute();
@@ -58,14 +58,16 @@ public class CommandTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateScoreCommand_BlocksUpdate() {
-        match.setState(MatchState.FINISHED);
+//        match.setState(MatchState.FINISHED);
+        match.finishMatch();
         UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, 1, 1);
         updateScoreCommand.execute();
     }
 
     @Test
     public void testFinishMatchCommand() {
-        match.setState(MatchState.IN_PROGRESS);
+//        match.setState(MatchState.IN_PROGRESS);
+        match.startMatch();
         scoreboard.addMatch(match);
 
         FinishMatchCommand finishMatchCommand = new FinishMatchCommand(scoreboard, match);
