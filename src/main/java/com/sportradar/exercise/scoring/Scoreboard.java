@@ -30,8 +30,8 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
     private final MatchSummaryGenerator summaryGenerator;
     private final MatchFactory matchFactory;
     private final MatchStorage<MatchInterface> matchStorage;
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
-    private Semaphore matchStartSemaphore = new Semaphore(5);
+    private ExecutorService executorService;
+    private Semaphore matchStartSemaphore;
     private static final Logger logger = Logger.getLogger(Scoreboard.class.getName());
 
     Scoreboard(MatchFactory matchFactory) {
@@ -40,7 +40,9 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
         this.summaryGenerator = new MatchSummaryGenerator();
         this.matchFactory = matchFactory;
         this.matchStorage = new InMemoryMatchStorage();
+        executorService = Executors.newFixedThreadPool(4);
         this.executorService = Executors.newFixedThreadPool(4);
+        matchStartSemaphore = new Semaphore(5);
     }
 
     private Scoreboard(MatchFactory matchFactory, CommandExecutor commandExecutor, MatchSummaryGenerator summaryGenerator, MatchStorage<MatchInterface> matchStorage) {
@@ -49,6 +51,8 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
         this.summaryGenerator = summaryGenerator;
         this.matchFactory = matchFactory;
         this.matchStorage = matchStorage;
+        executorService = Executors.newFixedThreadPool(4);
+        matchStartSemaphore = new Semaphore(5);
     }
 
     public static Scoreboard getInstance(MatchFactory matchFactory) {
