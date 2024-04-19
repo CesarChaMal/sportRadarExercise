@@ -6,7 +6,7 @@ import com.sportradar.exercise.match.Match;
 
 public class ScoringStrategiesFunctional2 {
 
-    public static final Map<ScoringStrategyType, BiConsumer<Match, int[]>> STRATEGY_MAP = Map.of(
+    private static final Map<ScoringStrategyType, BiConsumer<Match, int[]>> STRATEGY_MAP = Map.of(
         ScoringStrategyType.DEFAULT, (match, scores) -> {
             match.setHomeScore(scores[0]);
             match.setAwayScore(scores[1]);

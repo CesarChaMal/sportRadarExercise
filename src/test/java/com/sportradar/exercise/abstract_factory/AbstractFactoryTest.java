@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
-import static com.sportradar.exercise.strategy_functionall2.ScoringStrategiesFunctional2.STRATEGY_MAP;
+import static com.sportradar.exercise.strategy_functionall1.ScoringStrategiesFunctional1.forFootballNormalTimeScoringStrategy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -71,8 +71,9 @@ public class AbstractFactoryTest {
             m.setAwayScore(scores[1]);
         });
 */
-        match.setScoringStrategyFunctional1(STRATEGY_MAP.get(ScoringStrategyType.FOOTBALL_NORMAL_TIME));
-        match.getScoringStrategyFunctional1().accept(match, new int[]{2, 2});
+        match.setScoringStrategyFunctional1(forFootballNormalTimeScoringStrategy);
+//        match.getScoringStrategyFunctional1().accept(match, new int[]{2, 2});
+        match.updateScore(EventType.SCORE_UPDATE, 2, 2);
         assertEquals("Home score should be updated in FUNCTIONAL1 mode", 2, match.getHomeScore());
     }
 
@@ -96,15 +97,17 @@ public class AbstractFactoryTest {
             m.setAwayScore(scores[1]);
         });
 */
-        match.setScoringStrategyFunctional1(STRATEGY_MAP.get(ScoringStrategyType.FOOTBALL_NORMAL_TIME));
-        match.getScoringStrategyFunctional1().accept(match, new int[]{match.getHomeScore() + 1, match.getAwayScore() + 1});
+        match.setScoringStrategyFunctional1(forFootballNormalTimeScoringStrategy);
+//        match.getScoringStrategyFunctional1().accept(match, new int[]{match.getHomeScore() + 1, match.getAwayScore() + 1});
+        match.updateScore(EventType.SCORE_UPDATE,match.getHomeScore() + 1, match.getAwayScore() + 1);
 
         assertEquals("Scores should be updated correctly in FUNCTIONAL1 mode", 3, match.getHomeScore());
 
         match.setStrategyMode(ScoringStrategyMode.FUNCTIONAL2);
         match.setScoringStrategyFunctional2(ScoringStrategyType.FOOTBALL_NORMAL_TIME);
         BiConsumer<Match, int[]> scoringStrategy = ScoringStrategiesFunctional2.getStrategy(ScoringStrategyType.FOOTBALL_NORMAL_TIME);
-        scoringStrategy.accept(match, new int[]{match.getHomeScore() + 1, match.getAwayScore() + 1});
+//        scoringStrategy.accept(match, new int[]{match.getHomeScore() + 1, match.getAwayScore() + 1});
+        match.updateScore(EventType.SCORE_UPDATE,match.getHomeScore() + 1, match.getAwayScore() + 1);
 
         assertEquals("Home score should be adjusted correctly after strategy change", 4, match.getHomeScore());
         assertEquals("Away score should be adjusted correctly after strategy change", 4, match.getAwayScore());
