@@ -11,35 +11,39 @@ public class FootballMatch extends Match {
         super(builder);
     }
 
-    public synchronized void scoreHomeGoal(FootballPlayer scorer, FootballPlayer assistant) {
+    public void scoreHomeGoal(FootballPlayer scorer, FootballPlayer assistant) {
         lock.lock();
         try {
             incrementHomeScore(1);
+            ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
         } finally {
             lock.unlock();
         }
-        FootballEventManager manager = (FootballEventManager) getEventManager();
-        manager.addGoalEvent(scorer, assistant);
         notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
-    public synchronized void scoreAwayGoal(FootballPlayer scorer, FootballPlayer assistant) {
+    public void scoreAwayGoal(FootballPlayer scorer, FootballPlayer assistant) {
         lock.lock();
         try {
             incrementAwayScore(1);
+            ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
         } finally {
             lock.unlock();
         }
-        ((FootballEventManager)getEventManager()).addGoalEvent(scorer, assistant);
         notifyObservers(new MatchChangeEvent(this, EventType.GOAL));
     }
 
-    public synchronized void scoreGoal(FootballPlayer scorer, FootballPlayer assistant) {
+    public void scoreGoal(FootballPlayer scorer, FootballPlayer assistant) {
         FootballEventManager manager = (FootballEventManager) getEventManager();
         if (manager == null) {
-            throw new IllegalStateException("Event manager is not configured for footbal");
+            throw new IllegalStateException("Event manager is not configured for football");
         }
-        manager.addGoalEvent(scorer, assistant);
+        lock.lock();
+        try {
+            manager.addGoalEvent(scorer, assistant);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public static class Builder extends Match.Builder<Builder> {

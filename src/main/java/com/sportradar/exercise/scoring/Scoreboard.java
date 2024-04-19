@@ -6,6 +6,7 @@ import com.sportradar.exercise.command.CommandExecutor;
 import com.sportradar.exercise.command.FinishMatchCommand;
 import com.sportradar.exercise.command.StartMatchCommand;
 import com.sportradar.exercise.command.UpdateScoreCommand;
+import com.sportradar.exercise.match.FootballEventManager;
 import com.sportradar.exercise.match.MatchInterface;
 import com.sportradar.exercise.match.Team;
 import com.sportradar.exercise.storage.InMemoryMatchStorage;
@@ -48,10 +49,9 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
         this.summaryGenerator = summaryGenerator;
         this.matchFactory = matchFactory;
         this.matchStorage = matchStorage;
-        this.executorService = Executors.newFixedThreadPool(4);
     }
 
-    public static synchronized Scoreboard getInstance(MatchFactory matchFactory) {
+    public static Scoreboard getInstance(MatchFactory matchFactory) {
         lock.lock();
         try {
             if (instance == null) {
@@ -81,57 +81,72 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
 
     public boolean startMatch(Team<?> homeTeam, Team<?> awayTeam) {
         logger.info("Trying to start match between " + homeTeam.getName() + " and " + awayTeam.getName());
-        if (!matchStartSemaphore.tryAcquire()) {
-            logger.info("Failed to acquire semaphore for match between " + homeTeam.getName() + " and " + awayTeam.getName());
-            return false;
-        }
-//        commandExecutor.executeCommand(startMatchCommand);
-//        Future<?> future = executorService.submit(() -> startMatchCommand.execute());
+        lock.lock();
         try {
-            logger.info("Semaphore acquired for match start");
-            StartMatchCommand startMatchCommand = new StartMatchCommand(this, this.matchFactory, homeTeam, awayTeam);
-            Future<Boolean> future = executorService.submit(() -> {
-                startMatchCommand.execute();
+            if (!matchStartSemaphore.tryAcquire()) {
+                logger.info("Failed to acquire semaphore for match between " + homeTeam.getName() + " and " + awayTeam.getName());
+                return false;
+            }
+        //        commandExecutor.executeCommand(startMatchCommand);
+        //        Future<?> future = executorService.submit(() -> startMatchCommand.execute());
+            try {
+                logger.info("Semaphore acquired for match start");
+                StartMatchCommand startMatchCommand = new StartMatchCommand(this, this.matchFactory, homeTeam, awayTeam);
+                Future<Boolean> future = executorService.submit(() -> {
+                    startMatchCommand.execute();
+                    return true;
+                });
+                handleFutureCompletion(future);
                 return true;
-            });
-            handleFutureCompletion(future);
-            return true;
-        } catch (Exception e) {
-            logger.severe("Error starting match: " + e.getMessage());
-            matchStartSemaphore.release();
-            return false;
+            } catch (Exception e) {
+                logger.severe("Error starting match: " + e.getMessage());
+                matchStartSemaphore.release();
+                return false;
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
-    public synchronized void updateScore(MatchInterface match, int homeScore, int awayScore) {
+    public void updateScore(MatchInterface match, int homeScore, int awayScore) {
         logger.info("Updating score for match ID " + match.getId());
-        UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, homeScore, awayScore);
+        lock.lock();
+        try {
+            UpdateScoreCommand updateScoreCommand = new UpdateScoreCommand(match, homeScore, awayScore);
 //        commandExecutor.executeCommand(updateScoreCommand);
 //        Future<?> future = executorService.submit(() -> updateScoreCommand.execute());
-        Future<Boolean> future = executorService.submit(() -> {
-            updateScoreCommand.execute();
-            return true;
-        });
-        handleFutureCompletion(future);
+            Future<Boolean> future = executorService.submit(() -> {
+                updateScoreCommand.execute();
+                return true;
+            });
+            handleFutureCompletion(future);
+        } finally {
+            lock.unlock();
+        }
         logger.info("Scores updated for match: " + match.getId() + " - New Home Score: " + match.getHomeScore() + ", New Away Score: " + match.getAwayScore());
     }
 
     public void finishMatch(MatchInterface match) {
         logger.info("Finishing match with ID " + match.getId());
-        FinishMatchCommand finishMatchCommand = new FinishMatchCommand(this, match);
-//        commandExecutor.executeCommand(finishMatchCommand);
-//        Future<?> future = executorService.submit(() -> finishMatchCommand.execute());
+        lock.lock();
         try {
-            Future<Boolean> future = executorService.submit(() -> {
-                finishMatchCommand.execute();
-                return true;
-            });
-            handleFutureCompletion(future);
-        } catch (Exception e) {
-            logger.severe("Error finishing match: " + e.getMessage());
+            FinishMatchCommand finishMatchCommand = new FinishMatchCommand(this, match);
+    //        commandExecutor.executeCommand(finishMatchCommand);
+    //        Future<?> future = executorService.submit(() -> finishMatchCommand.execute());
+            try {
+                Future<Boolean> future = executorService.submit(() -> {
+                    finishMatchCommand.execute();
+                    return true;
+                });
+                handleFutureCompletion(future);
+            } catch (Exception e) {
+                logger.severe("Error finishing match: " + e.getMessage());
+            } finally {
+                matchStartSemaphore.release();
+                logger.info("Semaphore released after finishing match with ID " + match.getId());
+            }
         } finally {
-            matchStartSemaphore.release();
-            logger.info("Semaphore released after finishing match with ID " + match.getId());
+            lock.unlock();
         }
     }
 
