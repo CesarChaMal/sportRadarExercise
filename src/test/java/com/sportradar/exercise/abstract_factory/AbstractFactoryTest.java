@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
+import static com.sportradar.exercise.strategy_functionall2.ScoringStrategiesFunctional2.STRATEGY_MAP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -64,10 +65,13 @@ public class AbstractFactoryTest {
         assertEquals("Score should update correctly in CLASSIC mode", 1, match.getHomeScore());
 
         match.setStrategyMode(ScoringStrategyMode.FUNCTIONAL1);
+/*
         match.setScoringStrategyFunctional1((m, scores) -> {
             m.setHomeScore(scores[0]);
             m.setAwayScore(scores[1]);
         });
+*/
+        match.setScoringStrategyFunctional1(STRATEGY_MAP.get(ScoringStrategyType.FOOTBALL_NORMAL_TIME));
         match.getScoringStrategyFunctional1().accept(match, new int[]{2, 2});
         assertEquals("Home score should be updated in FUNCTIONAL1 mode", 2, match.getHomeScore());
     }
@@ -86,11 +90,14 @@ public class AbstractFactoryTest {
 
 //        match.setEnableValidationOfStrategyMode(true);
         match.setStrategyMode(ScoringStrategyMode.FUNCTIONAL1);
+/*
         match.setScoringStrategyFunctional1((m, scores) -> {
-            m.setHomeScore(scores[0] + 1);
-            m.setAwayScore(scores[1] + 1);
+            m.setHomeScore(scores[0]);
+            m.setAwayScore(scores[1]);
         });
-        match.getScoringStrategyFunctional1().accept(match, new int[]{match.getHomeScore(), match.getAwayScore()});
+*/
+        match.setScoringStrategyFunctional1(STRATEGY_MAP.get(ScoringStrategyType.FOOTBALL_NORMAL_TIME));
+        match.getScoringStrategyFunctional1().accept(match, new int[]{match.getHomeScore() + 1, match.getAwayScore() + 1});
 
         assertEquals("Scores should be updated correctly in FUNCTIONAL1 mode", 3, match.getHomeScore());
 
