@@ -44,6 +44,16 @@ public class StrategyFunctional1Test {
     }
 
     @Test
+    public void testBasketballNormalTimeScoringStrategy() {
+        Team<?> teamA = new BasketballTeam.Builder().name("Team A").build();
+        Team<?> teamB = new BasketballTeam.Builder().name("Team B").build();
+        BasketballMatch match = (BasketballMatch) createMatchWithStrategy(new BasketballMatchFactory(), teamA, teamB, ScoringStrategiesFunctional1.forBasketballNormalTimeScoringStrategy);
+        match.updateScore(EventType.SCORE_UPDATE, 10, 5);
+        assertEquals("Home score should be 10", 10, match.getHomeScore());
+        assertEquals("Away score should be 5", 5, match.getAwayScore());
+    }
+
+    @Test
     public void testBasketballExtraTimeScoringStrategy() {
         Team<?> teamA = new BasketballTeam.Builder().name("Team A").build();
         Team<?> teamB = new BasketballTeam.Builder().name("Team B").build();
@@ -52,15 +62,5 @@ public class StrategyFunctional1Test {
         ScoringStrategiesFunctional1.forBasketballExtraTimeScoringStrategy.accept(match, new int[]{10, 5});
         assertEquals("Home score should be 30", 30, match.getHomeScore());
         assertEquals("Away score should be 25", 25, match.getAwayScore());
-    }
-
-    @Test
-    public void testBasketballNormalTimeScoringStrategy() {
-        Team<?> teamA = new BasketballTeam.Builder().name("Team A").build();
-        Team<?> teamB = new BasketballTeam.Builder().name("Team B").build();
-        BasketballMatch match = (BasketballMatch) createMatchWithStrategy(new BasketballMatchFactory(), teamA, teamB, ScoringStrategiesFunctional1.forBasketballNormalTimeScoringStrategy);
-        match.updateScore(EventType.SCORE_UPDATE, 10, 5);
-        assertEquals("Home score should be 10", 10, match.getHomeScore());
-        assertEquals("Away score should be 5", 5, match.getAwayScore());
     }
 }
