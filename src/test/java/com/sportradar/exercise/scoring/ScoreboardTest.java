@@ -115,26 +115,34 @@ public class ScoreboardTest {
     }
 
     @Test
+    public void testFindHomeTeamScore() {
+        Team<?> homeTeam = FootballTeam.builder().name("Home4").build();
+        Team<?> awayTeam = FootballTeam.builder().name("Away4").build();
+        getMatch(homeTeam, awayTeam, 3, 2);
+
+        int scoreTeam = scoreboard.getTeamScore(homeTeam.getName());
+        assertEquals("Home team score not found as expected", 3, scoreTeam);
+    }
+
+    @Test
+    public void testFindAwayTeamScore() {
+        Team<?> homeTeam = FootballTeam.builder().name("Home5").build();
+        Team<?> awayTeam = FootballTeam.builder().name("Away5").build();
+        getMatch(homeTeam, awayTeam, 3, 2);
+
+        int scoreTeam = scoreboard.getTeamScore(awayTeam.getName());
+        assertEquals("Away team score not found as expected", 2, scoreTeam);
+    }
+
+    @Test
     public void testGetSummary() {
         Team<?> home1 = FootballTeam.builder().name("Home1").build();
         Team<?> away1 = FootballTeam.builder().name("Away1").build();
         Team<?> home2 = FootballTeam.builder().name("Home2").build();
         Team<?> away2 = FootballTeam.builder().name("Away2").build();
 
-        MatchInterface match1 = matchFactory.createMatchBuilder(home1, away1)
-                .scoringStrategy(ScoringStrategy.forFootballNormalTime()).build();
-        MatchInterface match2 = matchFactory.createMatchBuilder(home2, away2)
-                .scoringStrategy(ScoringStrategy.forFootballNormalTime()).build();
-
-        scoreboard.addMatch(match1);
-        scoreboard.addMatch(match2);
-
-//        match1.setState(MatchState.forInProgressState());
-        match1.startMatch();
-//        match2.setState(MatchState.forInProgressState());
-        match2.startMatch();
-        scoreboard.updateScore(match1, 0, 5);
-        scoreboard.updateScore(match2, 10, 2);
+        getMatch(home1, away1, 0, 5);
+        getMatch(home2, away2, 10, 2);
 
         var summary = scoreboard.getSummary();
         assertEquals("Expected exactly 2 matches in summary", 2, summary.size());

@@ -321,11 +321,17 @@ public abstract class Match implements MatchInterface, Comparable<Match> {
         }
 
         public T homeTeam(Team<?> homeTeam) {
+            if (homeTeam == null || homeTeam.getName().trim().isEmpty()) {
+                throw new IllegalArgumentException("Home team must not be null and must have a valid name.");
+            }
             this.homeTeam = homeTeam;
             return self();
         }
 
         public T awayTeam(Team<?> awayTeam) {
+            if (awayTeam == null || awayTeam.getName().trim().isEmpty()) {
+                throw new IllegalArgumentException("Away team must not be null and must have a valid name.");
+            }
             this.awayTeam = awayTeam;
             return self();
         }

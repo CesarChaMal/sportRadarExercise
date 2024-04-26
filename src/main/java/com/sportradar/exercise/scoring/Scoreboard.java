@@ -224,6 +224,14 @@ public class Scoreboard implements MatchStorage<MatchInterface> {
                 .findFirst();
     }
 
+    public int getTeamScore(String teamName) {
+        return getAllMatches().stream()
+                .filter(match -> match.getHomeTeam().getName().equals(teamName) || match.getAwayTeam().getName().equals(teamName))
+                .findFirst()
+                .map(match -> match.getHomeTeam().getName().equals(teamName) ? match.getHomeScore() : match.getAwayScore())
+                .orElse(0);
+    }
+
     public void shutdown() {
         resourceCleanup();
     }

@@ -5,6 +5,8 @@ import com.sportradar.exercise.observer.MatchChangeEvent;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+// Not final to be able to use Mockito Spy.
+//public final class BasketballMatch extends Match {
 public class BasketballMatch extends Match {
     private final ReentrantLock lock = new ReentrantLock();
 

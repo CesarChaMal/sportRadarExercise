@@ -83,6 +83,9 @@ public abstract class Team<P extends Player> {
         private int draws;
 
         public Builder<P> name(String name) {
+            if (name == null || name.trim().isEmpty()) {
+                throw new IllegalArgumentException("Team name must not be null or empty.");
+            }
             this.name = name;
             return this;
         }
