@@ -33,10 +33,17 @@ public class Scoreboard {
                 .collect(Collectors.toList()));
     }
 
-    public Match getMatch(String homeTeam, String awayTeam) {
+    protected Match getMatch(String homeTeam, String awayTeam) {
         return matches.stream()
                 .filter(match -> match.getHomeTeam().equals(homeTeam) && match.getAwayTeam().equals(awayTeam))
                 .findFirst()
                 .orElse(null);
+    }
+
+    protected int getTeamScore(String teamName) {
+        return matches.stream()
+                .filter(match -> match.getHomeTeam().equals(teamName) || match.getAwayTeam().equals(teamName))
+                .findFirst().map(match -> match.getHomeTeam().equals(teamName)?match.getHomeScore(): match.getAwayScore())
+                .orElse(0);
     }
 }

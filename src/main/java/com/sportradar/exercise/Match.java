@@ -5,9 +5,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class Match {
-    private String homeTeam;
-    private String awayTeam;
+public final class Match {
+    private final String homeTeam;
+    private final String awayTeam;
     private int homeScore;
     private int awayScore;
     private final long startTime;
@@ -16,6 +16,9 @@ public class Match {
     public Match(String homeTeam, String awayTeam) {
         this.homeTeam = Objects.requireNonNull(homeTeam.strip(), "Home team must not be null");
         this.awayTeam = Objects.requireNonNull(awayTeam.strip(), "Away team must not be null");
+        if (this.homeTeam.isEmpty() || this.awayTeam.isEmpty()) {
+            throw new IllegalArgumentException("Team names must not be empty");
+        }
         this.homeScore = 0;
         this.awayScore = 0;
         startTime = System.currentTimeMillis();
@@ -30,28 +33,12 @@ public class Match {
         return awayTeam;
     }
 
-    public void setHomeTeam(String homeTeam) {
-        this.homeTeam = homeTeam;
-    }
-
-    public void setAwayTeam(String awayTeam) {
-        this.awayTeam = awayTeam;
-    }
-
     public int getHomeScore() {
         return homeScore;
     }
 
     public int getAwayScore() {
         return awayScore;
-    }
-
-    public void setHomeScore(int homeScore) {
-        this.homeScore = homeScore;
-    }
-
-    public void setAwayScore(int awayScore) {
-        this.awayScore = awayScore;
     }
 
     public void updateScore(int homeScore, int awayScore) {

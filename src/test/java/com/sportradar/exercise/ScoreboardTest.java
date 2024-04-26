@@ -4,8 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ScoreboardTest {
     private Scoreboard scoreboard;
@@ -51,15 +50,25 @@ public class ScoreboardTest {
     }
 
     @Test
+    public void testFindHomeTeamScore() {
+        getMatch("Home4", "Away4", 3, 2);
+
+        int scoreTeam = scoreboard.getTeamScore("Home4");
+        assertEquals("Home team score not found as expected", 3, scoreTeam);
+    }
+
+    @Test
+    public void testFindAwayTeamScore() {
+        getMatch("Home5", "Away5", 3, 2);
+
+        int scoreTeam = scoreboard.getTeamScore("Away5");
+        assertEquals("Away team score not found as expected", 2, scoreTeam);
+    }
+
+    @Test
     public void testGetSummary() {
-        scoreboard.startMatch("Home1", "Away1");
-        scoreboard.startMatch("Home2", "Away2");
-
-        Match match1 = scoreboard.getMatch("Home1", "Away1");
-        Match match2 = scoreboard.getMatch("Home2", "Away2");
-
-        scoreboard.updateScore(match1, 0, 5);
-        scoreboard.updateScore(match2, 10, 2);
+        getMatch("Home1", "Away1", 0, 5);
+        getMatch("Home2", "Away2", 10, 2);
 
         var summary = scoreboard.getSummary();
 
