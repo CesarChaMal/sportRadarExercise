@@ -41,17 +41,23 @@ The library utilizes several design patterns and adheres to SOLID principles to 
 
 ### Design Patterns
 
-- **Builder Pattern**: Facilitates constructing complex `Match` objects. This pattern is crucial for creating instances with multiple parameters, avoiding confusion with multiple constructors.
-- **Abstract Factory Pattern**: Enables the instantiation of `Match` objects with pre-defined configurations, allowing for flexibility in creating matches for different types of sports.
-- **Observer Pattern**: Supports notifying interested parties of changes in match states, ensuring that components such as the scoreboard UI are updated in real time.
-- **Command Pattern**: Used to encapsulate all requests to the scoreboard as executable commands, allowing for undo operations and logging changes. Modern Spring Boot implementation provides database-aware commands with full undo capability.
-- **State Pattern**: Manages changes in match state (e.g., from not started, in progress, to finished) in a robust and extensible manner.
-- **Strategy Pattern**: Employs flexible scoring strategies that can adapt to various game rules or phases, such as regular time or extra time. The library implements **three distinct strategy approaches**:
+**✅ Preserved & Enhanced with Spring Boot:**
+
+- **Builder Pattern**: Facilitates constructing complex `Match` objects with fluent API. Fully preserved in Spring Boot version.
+- **Abstract Factory Pattern**: Enhanced with Spring `@Bean` configuration and `@ConditionalOnProperty` for sport-specific match creation.
+- **Observer Pattern**: Real-time match event notifications fully preserved with `Observer<T>` and `Subject<T>` interfaces.
+- **Command Pattern**: **Modernized** with `command.modern` package - database-aware commands with full undo capability via Spring `@Component`.
+- **State Pattern**: Advanced state management with `MatchStateManager` and O(1) state transitions fully preserved.
+- **Strategy Pattern**: All **three distinct approaches** fully preserved:
   - **Classic Strategy Pattern**: Traditional OOP approach with `ScoringStrategy` interface
   - **Functional Strategy 1**: Using `BiConsumer<Match, int[]>` for functional programming approach
   - **Functional Strategy 2**: Enum-based strategy selection with `ScoringStrategyType` for type-safe functional dispatch
-- **Singleton Pattern**: Ensures there is a single instance of the Scoreboard class throughout the application, providing a global point of access to it. This pattern is used to control scoreboard interactions and maintain a consistent state across different parts of the system.
-- **Decorator Pattern**: Enhances or modifies the behavior of Match objects during overtime without altering the original classes. This pattern allows the addition of new functionalities such as different scoring strategies or rules specific to overtime periods. Specific implementations like FootballMatchOvertime or BasketballMatchOvertime can extend from base decorator implementations to encapsulate and augment behaviors dynamically.
+- **Decorator Pattern**: Match behavior enhancement for overtime scenarios fully preserved with `MatchDecorator` and `MatchOverTime`.
+- **Repository Pattern**: **New Addition** - Spring Data JPA with custom queries for database abstraction.
+
+**⚠️ Replaced with Spring Boot Best Practices:**
+
+- **Singleton Pattern**: Replaced with Spring `@Service` dependency injection for better lifecycle management and testability.
 
 ### SOLID Principles
 
@@ -433,23 +439,30 @@ This example serves as a comprehensive guide for leveraging the Live Football Sc
 
 ## Architecture Highlights
 
+### Design Pattern Preservation
+- **7 out of 8** original design patterns fully preserved and working with Spring Boot
+- **Command Pattern Enhanced**: Modern implementation with database-aware undo capability
+- **All SOLID Principles**: Maintained and enhanced with Spring Boot dependency injection
+- **Clean Architecture**: Clear separation between Spring Boot services and core library patterns
+
 ### Modern Java 22 Features
 - **Pattern Matching**: Enhanced instanceof with pattern variables
 - **Switch Expressions**: Modern switch syntax for cleaner code
-- **Records**: Used for immutable data transfer objects
-- **Enhanced Generics**: Improved type safety throughout the codebase
+- **Records**: Used for immutable DTOs (`CreateMatchRequest`, `MatchResponse`, `UpdateScoreRequest`)
+- **Enhanced Generics**: Improved type safety with `MatchCommand<T>` and `Observer<T>`
+- **Functional Programming**: All three strategy approaches preserved
 
 ### Performance Optimizations
-- **O(1) State Lookups**: Map-based state transitions instead of conditional chains
+- **O(1) State Lookups**: Map-based state transitions with `MatchStateManager`
 - **EnumMap Strategy Dispatch**: Optimal performance for enum-based strategy selection
-- **Concurrent Collections**: Thread-safe data structures for high-performance concurrent access
-- **Semaphore-Controlled Resources**: Prevents resource exhaustion with configurable limits
+- **Spring Boot Optimizations**: Connection pooling, caching, and auto-configuration
+- **Database Persistence**: JPA entities with optimized queries
 
 ### Testing Strategy
-- **Comprehensive Coverage**: Unit, integration, concurrency, and error handling tests
-- **State Management Testing**: Validates complex state transitions and edge cases
-- **Concurrency Testing**: Ensures thread safety under high load
-- **Error Scenario Testing**: Validates proper exception handling and edge cases
+- **Comprehensive Coverage**: Unit, integration, Spring Boot, and modern command pattern tests
+- **Spring Boot Testing**: `@DataJpaTest`, `@WebMvcTest`, and full integration tests
+- **Design Pattern Testing**: Validates all preserved patterns work correctly with Spring Boot
+- **Database Testing**: JPA repository and persistence service validation
 
 ## Project Structure
 ```
