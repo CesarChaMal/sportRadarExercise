@@ -44,7 +44,7 @@ The library utilizes several design patterns and adheres to SOLID principles to 
 - **Builder Pattern**: Facilitates constructing complex `Match` objects. This pattern is crucial for creating instances with multiple parameters, avoiding confusion with multiple constructors.
 - **Abstract Factory Pattern**: Enables the instantiation of `Match` objects with pre-defined configurations, allowing for flexibility in creating matches for different types of sports.
 - **Observer Pattern**: Supports notifying interested parties of changes in match states, ensuring that components such as the scoreboard UI are updated in real time.
-- **Command Pattern**: Used to encapsulate all requests to the scoreboard as executable commands, allowing for undo operations and logging changes.
+- **Command Pattern**: Used to encapsulate all requests to the scoreboard as executable commands, allowing for undo operations and logging changes. Modern Spring Boot implementation provides database-aware commands with full undo capability.
 - **State Pattern**: Manages changes in match state (e.g., from not started, in progress, to finished) in a robust and extensible manner.
 - **Strategy Pattern**: Employs flexible scoring strategies that can adapt to various game rules or phases, such as regular time or extra time. The library implements **three distinct strategy approaches**:
   - **Classic Strategy Pattern**: Traditional OOP approach with `ScoringStrategy` interface
@@ -212,6 +212,11 @@ Content-Type: application/json
   "homeScore": 2,
   "awayScore": 1
 }
+```
+
+#### Undo Last Command
+```bash
+POST /api/matches/undo
 ```
 
 #### Get Match Summary

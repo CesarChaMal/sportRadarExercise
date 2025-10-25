@@ -5,6 +5,10 @@ import com.sportradar.exercise.dto.MatchResponse;
 import com.sportradar.exercise.dto.UpdateScoreRequest;
 import com.sportradar.exercise.entity.MatchEntity;
 import com.sportradar.exercise.exception.MatchNotFoundException;
+import com.sportradar.exercise.command.modern.CommandExecutor;
+import com.sportradar.exercise.command.modern.CreateMatchCommand;
+import com.sportradar.exercise.command.modern.FinishMatchCommand;
+import com.sportradar.exercise.command.modern.UpdateScoreCommand;
 import com.sportradar.exercise.service.MatchPersistenceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +26,18 @@ import java.util.stream.Collectors;
 public class MatchController {
     
     private final MatchPersistenceService persistenceService;
+    private final CommandExecutor commandExecutor;
     
     @Autowired
-    public MatchController(MatchPersistenceService persistenceService) {
+    public MatchController(MatchPersistenceService persistenceService, CommandExecutor commandExecutor) {
         this.persistenceService = persistenceService;
+        this.commandExecutor = commandExecutor;
     }
     
     @PostMapping
     public ResponseEntity<MatchResponse> createMatch(@Valid @RequestBody CreateMatchRequest request) {
-        MatchEntity entity = new MatchEntity(request.homeTeamName(), request.awayTeamName(), request.matchType());
-        entity.setStatus("IN_PROGRESS");
-        MatchEntity saved = persistenceService.saveMatch(entity);
+        CreateMatchCommand command = new CreateMatchCommand(persistenceService, request.homeTeamName(), request.awayTeamName(), request.matchType());
+        MatchEntity saved = commandExecutor.executeCommand(command);
         
         MatchResponse response = new MatchResponse(
                 saved.getId(),
@@ -47,7 +52,8 @@ public class MatchController {
     
     @PutMapping("/{matchId}/score")
     public ResponseEntity<MatchResponse> updateScore(@PathVariable Long matchId, @Valid @RequestBody UpdateScoreRequest request) {
-        MatchEntity updated = persistenceService.updateScore(matchId, request.homeScore(), request.awayScore());
+        UpdateScoreCommand command = new UpdateScoreCommand(persistenceService, matchId, request.homeScore(), request.awayScore());
+        MatchEntity updated = commandExecutor.executeCommand(command);
         MatchResponse response = new MatchResponse(
                 updated.getId(),
                 updated.getHomeTeamName(),
@@ -80,7 +86,14 @@ public class MatchController {
         if (match.isEmpty()) {
             throw new MatchNotFoundException(matchId);
         }
-        persistenceService.deleteMatch(matchId);
+        FinishMatchCommand command = new FinishMatchCommand(persistenceService, matchId);
+        commandExecutor.executeCommand(command);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/undo")
+    public ResponseEntity<Void> undoLastCommand() {
+        commandExecutor.undoLastCommand();
+        return ResponseEntity.ok().build();
     }
 }
