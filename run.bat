@@ -1,6 +1,6 @@
 @echo off
 REM SportRadar Exercise Runner Script for Windows
-REM Sets Java 22 using SDKMAN and runs the project
+REM Sets Java 22 using SDKMAN and runs the Spring Boot project
 
 echo 🚀 SportRadar Exercise Runner
 echo ==============================
@@ -31,4 +31,15 @@ echo 🧪 Running tests...
 mvnw.cmd test
 
 echo ✅ Build and tests completed successfully!
-pause
+echo.
+echo 🌟 Starting Spring Boot Application...
+echo 📍 Application will be available at: http://localhost:8080
+echo 🏥 Health check: http://localhost:8080/actuator/health
+echo 📊 H2 Console: http://localhost:8080/h2-console
+echo 🔗 API Base: http://localhost:8080/api/matches
+echo.
+echo Press Ctrl+C to stop the application
+echo ==============================
+
+REM Run Spring Boot application
+mvnw.cmd spring-boot:run

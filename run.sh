@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # SportRadar Exercise Runner Script
-# Sets Java 22 using SDKMAN and runs the project
+# Sets Java 22 using SDKMAN and runs the Spring Boot project
 
 set -e
 
@@ -33,3 +33,15 @@ echo "🧪 Running tests..."
 ./mvnw test
 
 echo "✅ Build and tests completed successfully!"
+echo ""
+echo "🌟 Starting Spring Boot Application..."
+echo "📍 Application will be available at: http://localhost:8080"
+echo "🏥 Health check: http://localhost:8080/actuator/health"
+echo "📊 H2 Console: http://localhost:8080/h2-console"
+echo "🔗 API Base: http://localhost:8080/api/matches"
+echo ""
+echo "Press Ctrl+C to stop the application"
+echo "=============================="
+
+# Run Spring Boot application
+./mvnw spring-boot:run
