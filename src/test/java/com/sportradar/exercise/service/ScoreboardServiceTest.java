@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -67,6 +68,29 @@ public class ScoreboardServiceTest {
         
         assertFalse(summary.isEmpty());
         assertEquals(1, summary.size());
+    }
+
+    @Test
+    public void testGetMatch() {
+        MatchInterface match = new FootballMatchFactory().createMatchBuilder(homeTeam, awayTeam).build();
+        scoreboardService.addMatch(match);
+        
+        Optional<MatchInterface> found = scoreboardService.getMatch(homeTeam, awayTeam);
+        
+        assertTrue(found.isPresent());
+        assertEquals(homeTeam, found.get().getHomeTeam());
+        assertEquals(awayTeam, found.get().getAwayTeam());
+    }
+
+    @Test
+    public void testGetMatchById() {
+        MatchInterface match = new FootballMatchFactory().createMatchBuilder(homeTeam, awayTeam).build();
+        scoreboardService.addMatch(match);
+        
+        MatchInterface found = scoreboardService.getMatchById(match.getId());
+        
+        assertNotNull(found);
+        assertEquals(match.getId(), found.getId());
     }
 
     @Test
