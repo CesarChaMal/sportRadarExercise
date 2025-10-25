@@ -4,8 +4,10 @@ import com.sportradar.exercise.dto.CreateMatchRequest;
 import com.sportradar.exercise.dto.MatchResponse;
 import com.sportradar.exercise.dto.UpdateScoreRequest;
 import com.sportradar.exercise.entity.MatchEntity;
+import com.sportradar.exercise.exception.MatchNotFoundException;
 import com.sportradar.exercise.service.MatchPersistenceService;
 import com.sportradar.exercise.service.ScoreboardService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,7 @@ public class MatchController {
     }
     
     @PostMapping
-    public ResponseEntity<MatchResponse> createMatch(@RequestBody CreateMatchRequest request) {
+    public ResponseEntity<MatchResponse> createMatch(@Valid @RequestBody CreateMatchRequest request) {
         MatchEntity entity = new MatchEntity(request.homeTeamName(), request.awayTeamName(), request.matchType());
         entity.setStatus("IN_PROGRESS");
         MatchEntity saved = persistenceService.saveMatch(entity);
@@ -47,21 +49,17 @@ public class MatchController {
     }
     
     @PutMapping("/{matchId}/score")
-    public ResponseEntity<MatchResponse> updateScore(@PathVariable Long matchId, @RequestBody UpdateScoreRequest request) {
-        try {
-            MatchEntity updated = persistenceService.updateScore(matchId, request.homeScore(), request.awayScore());
-            MatchResponse response = new MatchResponse(
-                    updated.getId(),
-                    updated.getHomeTeamName(),
-                    updated.getAwayTeamName(),
-                    updated.getHomeScore(),
-                    updated.getAwayScore(),
-                    updated.getStatus()
-            );
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<MatchResponse> updateScore(@PathVariable Long matchId, @Valid @RequestBody UpdateScoreRequest request) {
+        MatchEntity updated = persistenceService.updateScore(matchId, request.homeScore(), request.awayScore());
+        MatchResponse response = new MatchResponse(
+                updated.getId(),
+                updated.getHomeTeamName(),
+                updated.getAwayTeamName(),
+                updated.getHomeScore(),
+                updated.getAwayScore(),
+                updated.getStatus()
+        );
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/summary")
@@ -82,10 +80,10 @@ public class MatchController {
     @DeleteMapping("/{matchId}")
     public ResponseEntity<Void> finishMatch(@PathVariable Long matchId) {
         Optional<MatchEntity> match = persistenceService.findById(matchId);
-        if (match.isPresent()) {
-            persistenceService.deleteMatch(matchId);
-            return ResponseEntity.noContent().build();
+        if (match.isEmpty()) {
+            throw new MatchNotFoundException(matchId);
         }
-        return ResponseEntity.notFound().build();
+        persistenceService.deleteMatch(matchId);
+        return ResponseEntity.noContent().build();
     }
 }

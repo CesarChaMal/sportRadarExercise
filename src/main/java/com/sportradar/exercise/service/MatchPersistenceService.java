@@ -1,6 +1,7 @@
 package com.sportradar.exercise.service;
 
 import com.sportradar.exercise.entity.MatchEntity;
+import com.sportradar.exercise.exception.MatchNotFoundException;
 import com.sportradar.exercise.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,6 @@ public class MatchPersistenceService {
             entity.setAwayScore(awayScore);
             return matchRepository.save(entity);
         }
-        throw new RuntimeException("Match not found with id: " + id);
+        throw new MatchNotFoundException(id);
     }
 }
