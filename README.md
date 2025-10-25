@@ -36,7 +36,10 @@ The library utilizes several design patterns and adheres to SOLID principles to 
 - **Observer Pattern**: Supports notifying interested parties of changes in match states, ensuring that components such as the scoreboard UI are updated in real time.
 - **Command Pattern**: Used to encapsulate all requests to the scoreboard as executable commands, allowing for undo operations and logging changes.
 - **State Pattern**: Manages changes in match state (e.g., from not started, in progress, to finished) in a robust and extensible manner.
-- **Strategy Pattern**: Employs flexible scoring strategies that can adapt to various game rules or phases, such as regular time or extra time. The library enhances this pattern by incorporating functional programming principles, enabling the dynamic application of scoring strategies during a match. This approach not only allows for easy adjustments to scoring logic based on the match context but also streamlines the implementation of diverse and complex scoring rules with minimal code changes.
+- **Strategy Pattern**: Employs flexible scoring strategies that can adapt to various game rules or phases, such as regular time or extra time. The library implements **three distinct strategy approaches**:
+  - **Classic Strategy Pattern**: Traditional OOP approach with `ScoringStrategy` interface
+  - **Functional Strategy 1**: Using `BiConsumer<Match, int[]>` for functional programming approach
+  - **Functional Strategy 2**: Enum-based strategy selection with `ScoringStrategyType` for type-safe functional dispatch
 - **Singleton Pattern**: Ensures there is a single instance of the Scoreboard class throughout the application, providing a global point of access to it. This pattern is used to control scoreboard interactions and maintain a consistent state across different parts of the system.
 - **Decorator Pattern**: Enhances or modifies the behavior of Match objects during overtime without altering the original classes. This pattern allows the addition of new functionalities such as different scoring strategies or rules specific to overtime periods. Specific implementations like FootballMatchOvertime or BasketballMatchOvertime can extend from base decorator implementations to encapsulate and augment behaviors dynamically.
 
@@ -59,22 +62,33 @@ The design and implementation strive to adhere to SOLID principles for object-or
 - **Prefer lists to arrays**: Lists provide more flexibility and safety, and are used throughout the library for managing collections of matches and observers.
 - **Use of Immutable Collections**: To prevent unintended modifications, `Collections.unmodifiableList` is used when returning lists from the library's methods.
 - **Use Enum instead of int constants**: Enums are used for defining types and options that are known at compile time to ensure type safety and clarity.
+- **Pattern Matching with instanceof**: Leverages Java 16+ pattern matching for cleaner type checking and casting.
+- **EnumMap for Performance**: Uses `EnumMap` for optimal enum-based lookups in strategy dispatch.
 
 ### Utilization of Functional Programming
 
 This library incorporates functional programming principles to enhance readability, maintainability, and code efficiency:
 
-- **Functional Programming**: Incorporates the use of Optional for better handling of null values, ensuring that operations on potentially null objects are handled more safely. The functional strategy selector further exemplifies the application of functional programming by enabling dynamic strategy selection based on runtime criteria.
+- **Multiple Strategy Implementations**: Three different approaches to strategy pattern implementation, showcasing both OOP and functional programming paradigms
+- **EnumMap Strategy Dispatch**: High-performance strategy selection using `EnumMap<ScoringStrategyMode, BiConsumer<Integer, Integer>>`
+- **Method References**: Extensive use of method references (`this::applyScoringStrategy`) for cleaner code
+- **Pattern Matching**: Utilizes Java 16+ pattern matching with instanceof for cleaner type checking
 - **Comparator Chains**: Utilizes `Comparator` chains for sorting matches, leveraging lambda expressions and method references for concise and readable sorting logic.
 - **Optional**: Employs `Optional` for safe retrieval of matches, minimizing the risk of `NullPointerException` and simplifying conditional logic.
 - **Stream API**: Leverages the Stream API for filtering and collecting matches, showcasing the power of streams in processing collections.
+- **Functional Strategy Selection**: Dynamic strategy selection based on runtime criteria using functional interfaces
+
+### Advanced State Management
+- **MatchStateManager**: Centralized state management with EnumMap-based strategy dispatch for optimal performance
+- **Map-based State Transitions**: O(1) lookup performance for state-to-event mapping
+- **Concurrent State Handling**: Thread-safe state transitions with fine-grained locking
 
 ### Synchronization Techniques
 - **Fine-Grained Locking**: Utilizes more precise locking mechanisms to allow for more concurrent operations while reducing bottlenecks.
-- **Read/Write Locks**: Employs separate locks for reading and writing operations to optimize performance, especially beneficial in high-read scenarios.
+- **ReentrantLock**: Strategic use of reentrant locks for thread-safe operations
 - **Atomic Operations**: Uses atomic variables and operations to manage critical sections of the scoreboard without locking, enhancing efficiency.
 - **Concurrent Data Structures**: Implements thread-safe collections and structures for managing matches and their scores effectively.
-- **Semaphores**: Utilizes semaphores to control access to resources by multiple threads, preventing race conditions and ensuring that only a fixed number of threads can access match starting functions simultaneously.
+- **Semaphores**: Utilizes semaphores to control access to resources by multiple threads, preventing race conditions and ensuring that only a fixed number of threads can access match starting functions simultaneously (max 5 concurrent match starts).
 - **Executor Services and Futures**: Manages thread execution and resource allocation through executor services, providing a framework for asynchronous task execution. Futures are used to track the progress and results of asynchronous computations, enabling efficient data handling and state management without blocking the main application thread.
 
 ### Benefits
@@ -84,6 +98,8 @@ These synchronization techniques are integrated into the library to ensure robus
 
 - **Test-Driven Development (TDD)**: Development began with writing tests for each functionality, ensuring each piece of code is properly tested before implementation.
 - **Clean Code**: Effort was made to write readable, simple, and refactored code to enhance maintainability and understandability.
+- **Modern Java Features**: Utilizes Java 22 features including pattern matching, records, enhanced switch expressions, and advanced functional programming constructs.
+- **Comprehensive Testing**: Includes unit tests, integration tests, concurrency tests, and error handling scenarios for robust validation.
 
 ## Requirements
 
@@ -115,11 +131,34 @@ cd SportRadarExercise
 mvnw.cmd clean install
 ```
 
+### Using SDKMAN for Java Version Management
+For easy Java version management, use the provided scripts:
+
+**Unix/Linux/macOS:**
+```bash
+./run.sh
+```
+
+**Windows:**
+```bash
+run.bat
+```
+
+These scripts automatically set Java 22 using SDKMAN and run the project.
+
 ### Run Specific Tests
 To run specific tests during the development process, you can use the following Maven command:
 ```bash
 ./mvnw test -Dtest=ClassNameTest
 ```
+
+### Test Coverage
+The project includes comprehensive test coverage:
+- **Unit Tests**: Core functionality testing
+- **Integration Tests**: End-to-end workflow validation
+- **Concurrency Tests**: Thread safety verification
+- **State Management Tests**: State transition validation
+- **Error Handling Tests**: Edge case and exception scenarios
 ## How to Use
 
 This library offers a flexible way to handle football matches, including starting matches, updating scores, finishing matches, and retrieving summaries of ongoing matches. Additionally, it supports different scoring strategies to accommodate various match scenarios, such as normal time, extra time, or custom rules.
@@ -129,7 +168,8 @@ This library offers a flexible way to handle football matches, including startin
 You can start a match by directly creating a `Match` object with a factory or by using the `Scoreboard` class to manage it for you.
 
 ```java
-Scoreboard scoreboard = new Scoreboard();
+// Use Singleton pattern for Scoreboard
+Scoreboard scoreboard = Scoreboard.getInstance(new FootballMatchFactory());
 MatchFactory footballMatchFactory = new FootballMatchFactory();
 
 // Create teams for the football match
@@ -151,14 +191,12 @@ MatchInterface basketballMatch = basketballMatchFactory.createMatchBuilder(homeB
 scoreboard.addMatch(basketballMatch);
 
 // Start a football match with a specific scoring strategy mode
-MatchFactory<FootballMatch> footballMatchFactory = new FootballMatchFactory();
 MatchInterface footballMatch = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                             .scoringStrategyMode(ScoringStrategyMode.CLASSIC) // or FUNCTIONAL1, FUNCTIONAL2
                                             .build();
 scoreboard.addMatch(footballMatch);
 
 // Start a match using the classic strategy pattern
-MatchFactory footballMatchFactory = new FootballMatchFactory();
 MatchInterface match = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                             .scoringStrategyMode(ScoringStrategyMode.CLASSIC) 
                                             .scoringStrategy(ScoringStrategy.forFootballNormalTime())
@@ -203,8 +241,7 @@ Team<FootballPlayer> homeFootballTeam = new FootballTeam.Builder().name("Home Fo
 Team<FootballPlayer> awayFootballTeam = new FootballTeam.Builder().name("Away Football Team").build();
 
 // Create a football match
-MatchFactory<FootballMatch> footballMatchFactory = new FootballMatchFactory();
-FootballMatch footballMatch = footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
+FootballMatch footballMatch = (FootballMatch) footballMatchFactory.createMatchBuilder(homeFootballTeam, awayFootballTeam)
                                                    .scoringStrategyMode(ScoringStrategyMode.CLASSIC)
                                                    .build();
 
@@ -228,7 +265,7 @@ Team<BasketballPlayer> awayBasketballTeam = new BasketballTeam.Builder().name("A
 
 // Create a basketball match
 MatchFactory<BasketballMatch> basketballMatchFactory = new BasketballMatchFactory();
-BasketballMatch basketballMatch = basketballMatchFactory.createMatchBuilder(homeBasketballTeam, awayBasketballTeam)
+BasketballMatch basketballMatch = (BasketballMatch) basketballMatchFactory.createMatchBuilder(homeBasketballTeam, awayBasketballTeam)
                                                         .build();
 
 // Register an observer for basketball events
@@ -303,7 +340,7 @@ public class FootballMatchUsageExample {
                 .orElse(null);
 
         assertNotNull("Goal event should exist", firstGoalEvent);
-        assertEquals("First goal should be scored by Maradona", "John Doe", firstGoalEvent.getInvolvedPlayers().get(0).getName());
+        assertEquals("First goal should be scored by John Doe", "John Doe", firstGoalEvent.getInvolvedPlayers().get(0).getName());
         assertTrue("Observer should have received the event", observer.isEventReceived());
     }
 }
@@ -326,4 +363,42 @@ public class FootballMatchUsageExample {
 
 This example serves as a comprehensive guide for leveraging the Live Football Scoreboard Library to manage and monitor football matches effectively, showcasing real-world application of match setup, event handling, and observer notifications.
 
+## Architecture Highlights
 
+### Modern Java 22 Features
+- **Pattern Matching**: Enhanced instanceof with pattern variables
+- **Switch Expressions**: Modern switch syntax for cleaner code
+- **Records**: Used for immutable data transfer objects
+- **Enhanced Generics**: Improved type safety throughout the codebase
+
+### Performance Optimizations
+- **O(1) State Lookups**: Map-based state transitions instead of conditional chains
+- **EnumMap Strategy Dispatch**: Optimal performance for enum-based strategy selection
+- **Concurrent Collections**: Thread-safe data structures for high-performance concurrent access
+- **Semaphore-Controlled Resources**: Prevents resource exhaustion with configurable limits
+
+### Testing Strategy
+- **Comprehensive Coverage**: Unit, integration, concurrency, and error handling tests
+- **State Management Testing**: Validates complex state transitions and edge cases
+- **Concurrency Testing**: Ensures thread safety under high load
+- **Error Scenario Testing**: Validates proper exception handling and edge cases
+
+## Project Structure
+```
+src/
+├── main/java/com/sportradar/exercise/
+│   ├── abstract_factory/     # Factory pattern implementations
+│   ├── analytics/           # Match summary generation
+│   ├── command/             # Command pattern for operations
+│   ├── decorator/           # Decorator pattern for overtime
+│   ├── match/               # Core match entities
+│   ├── observer/            # Observer pattern implementation
+│   ├── scoring/             # Scoreboard and scoring logic
+│   ├── state/               # State pattern with advanced management
+│   ├── storage/             # Data storage abstractions
+│   ├── strategy/            # Classic strategy pattern
+│   ├── strategy_functional1/ # Functional strategy approach 1
+│   ├── strategy_functional2/ # Functional strategy approach 2
+│   └── timing/              # Time-based functionality
+└── test/java/               # Comprehensive test suite
+```
