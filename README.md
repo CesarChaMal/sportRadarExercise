@@ -6,7 +6,7 @@ This Live Football Scoreboard Library provides real-time simulations for trackin
 
 ## Version
 
-The current version of the Live Football Scoreboard Library is **v0.4.0**. This version enhances the library with basketball match management and advanced synchronization strategies.
+The current version of the Live Football Scoreboard Library is **v0.5.0-SNAPSHOT**. This version introduces Spring Boot integration while maintaining all existing design patterns and functionality.
 
 ## Features
 
@@ -14,6 +14,8 @@ The current version of the Live Football Scoreboard Library is **v0.4.0**. This 
 - **Start a Match**: Initiate a football or basketball match specifying initial scores and strategies.
 - **Update Score**: Dynamically update the score during a match based on defined scoring strategies.
 - **Finish Match**: Conclude a match and update its status to finished.
+- **REST API**: Full REST API support for match operations via Spring Boot.
+- **Async Operations**: Asynchronous match processing with Spring's @Async support.
 
 ### Scoring Strategies
 - **Flexible Scoring Strategies**: Define scoring behaviors that can change dynamically during the match to reflect different phases like normal time or overtime.
@@ -24,6 +26,14 @@ The current version of the Live Football Scoreboard Library is **v0.4.0**. This 
 
 ### Observability
 - **Real-time Updates**: Utilize the observer pattern to notify all registered observers about changes in the match state or score.
+- **Spring Boot Integration**: Enhanced observability through Spring Boot Actuator and logging.
+
+### Spring Boot Features
+- **Dependency Injection**: Full Spring IoC container integration
+- **Configuration Management**: Externalized configuration via application.yml
+- **REST API**: RESTful endpoints for all scoreboard operations
+- **Async Processing**: Non-blocking match operations
+- **Health Checks**: Built-in health monitoring via Spring Boot Actuator
 
 ## Design Patterns, Principles and Good Practices
 
@@ -106,6 +116,9 @@ These synchronization techniques are integrated into the library to ensure robus
 ### Java Version
 This project is built using **Java SE 22**. Ensure that you have the JDK for Java 22 installed on your machine to compile and run the project successfully.
 
+### Spring Boot
+The project now uses **Spring Boot 3.2.0** for enterprise-grade features including dependency injection, REST APIs, and configuration management.
+
 ### Maven
 The project uses Maven for dependency management and builds processes. It is recommended to use the Maven Wrapper included in the project to ensure the correct version of Maven is utilized.
 
@@ -114,22 +127,35 @@ The project uses Maven for dependency management and builds processes. It is rec
 ### Running the Project
 
 1. **Clone the Repository**
-- First, clone the repository to your local machine using Git:
 ```bash
 git clone https://github.com/CesarChaMal/sportRadarExercise.git
 cd SportRadarExercise
-  ```
+```
 
 2. **Building the Project**
-- Once the Maven Wrapper is set up, you can build the project using the following command. This command will clean the previous builds and compile the project, run tests, and package the application:
 ```bash
 ./mvnw clean install
 ```
 
-- On Windows systems, use `mvnw.cmd` instead of `./mvnw`:
+- On Windows systems:
 ```bash
 mvnw.cmd clean install
 ```
+
+3. **Running as Spring Boot Application**
+```bash
+./mvnw spring-boot:run
+```
+
+- Or run the JAR directly:
+```bash
+java -jar target/sportRadarExercise-0.5.0-SNAPSHOT.jar
+```
+
+4. **Access REST API**
+- Base URL: `http://localhost:8080`
+- Health Check: `http://localhost:8080/actuator/health`
+- API Documentation: Available via Spring Boot endpoints
 
 ### Using SDKMAN for Java Version Management
 For easy Java version management, use the provided scripts:
@@ -161,7 +187,44 @@ The project includes comprehensive test coverage:
 - **Error Handling Tests**: Edge case and exception scenarios
 ## How to Use
 
-This library offers a flexible way to handle football matches, including starting matches, updating scores, finishing matches, and retrieving summaries of ongoing matches. Additionally, it supports different scoring strategies to accommodate various match scenarios, such as normal time, extra time, or custom rules.
+This library offers a flexible way to handle football matches, including starting matches, updating scores, finishing matches, and retrieving summaries of ongoing matches. It now supports both programmatic usage and REST API access via Spring Boot integration.
+
+### REST API Usage
+
+#### Start a Match
+```bash
+POST /api/matches
+Content-Type: application/json
+
+{
+  "homeTeamName": "Team A",
+  "awayTeamName": "Team B",
+  "matchType": "FOOTBALL"
+}
+```
+
+#### Update Score
+```bash
+PUT /api/matches/{matchId}/score
+Content-Type: application/json
+
+{
+  "homeScore": 2,
+  "awayScore": 1
+}
+```
+
+#### Get Match Summary
+```bash
+GET /api/matches/summary
+```
+
+#### Finish Match
+```bash
+DELETE /api/matches/{matchId}
+```
+
+### Programmatic Usage
 
 ### Starting a Match
 
@@ -390,15 +453,21 @@ src/
 │   ├── abstract_factory/     # Factory pattern implementations
 │   ├── analytics/           # Match summary generation
 │   ├── command/             # Command pattern for operations
+│   ├── config/              # Spring Boot configuration
+│   ├── controller/          # REST API controllers
 │   ├── decorator/           # Decorator pattern for overtime
+│   ├── dto/                 # Data Transfer Objects
 │   ├── match/               # Core match entities
 │   ├── observer/            # Observer pattern implementation
 │   ├── scoring/             # Scoreboard and scoring logic
+│   ├── service/             # Spring Boot services
 │   ├── state/               # State pattern with advanced management
 │   ├── storage/             # Data storage abstractions
 │   ├── strategy/            # Classic strategy pattern
 │   ├── strategy_functional1/ # Functional strategy approach 1
 │   ├── strategy_functional2/ # Functional strategy approach 2
 │   └── timing/              # Time-based functionality
+├── main/resources/
+│   └── application.yml      # Spring Boot configuration
 └── test/java/               # Comprehensive test suite
 ```
