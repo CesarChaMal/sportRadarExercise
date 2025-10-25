@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: sportradar-scoreboard
+  profiles:
+    active: development
+
+scoreboard:
+  max-concurrent-matches: 5
+  thread-pool-size: 4
+  timeout-ms: 500
+
+scoring:
+  strategy: classic
+  
+sport:
+  type: football
+
+logging:
+  level:
+    com.sportradar.exercise: INFO
+    org.springframework: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
