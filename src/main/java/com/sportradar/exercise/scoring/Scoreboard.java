@@ -22,6 +22,7 @@ import static java.lang.System.*;
 import static java.lang.System.out;
 
 
+@Deprecated
 public class Scoreboard implements MatchStorage<MatchInterface> {
     private static Scoreboard instance;
     private static final Lock lock = new ReentrantLock();
