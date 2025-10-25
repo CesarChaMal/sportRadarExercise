@@ -37,11 +37,36 @@ echo ""
 echo "🌟 Starting Spring Boot Application..."
 echo "📍 Application will be available at: http://localhost:8080"
 echo "🏥 Health check: http://localhost:8080/actuator/health"
-echo "📊 H2 Console: http://localhost:8080/h2-console"
-echo "🔗 API Base: http://localhost:8080/api/matches"
+echo "📊 H2 Console: http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:testdb, User: sa, Password: [empty])"
+echo "📋 Match Summary: http://localhost:8080/api/matches/summary"
 echo ""
 echo "Press Ctrl+C to stop the application"
 echo "=============================="
 
-# Run Spring Boot application
-./mvnw spring-boot:run
+# Run Spring Boot application in background
+./mvnw spring-boot:run &
+SERVER_PID=$!
+
+echo "⏳ Waiting for server to start..."
+sleep 10
+
+echo "🧪 Testing API endpoints..."
+echo "📝 Creating match..."
+curl -s -X POST http://localhost:8080/api/matches -H "Content-Type: application/json" -d '{"homeTeamName":"Team A","awayTeamName":"Team B","matchType":"FOOTBALL"}'
+echo ""
+
+echo "📊 Getting summary..."
+curl -s http://localhost:8080/api/matches/summary
+echo ""
+
+echo "⚽ Updating score..."
+curl -s -X PUT http://localhost:8080/api/matches/1/score -H "Content-Type: application/json" -d '{"homeScore":2,"awayScore":1}'
+echo ""
+
+echo "↩️ Testing undo..."
+curl -s -X POST http://localhost:8080/api/matches/undo
+echo ""
+
+echo "✅ API tests completed!"
+echo "🔄 Server continues running. Press Ctrl+C to stop."
+wait $SERVER_PID

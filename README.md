@@ -123,7 +123,7 @@ These synchronization techniques are integrated into the library to ensure robus
 This project is built using **Java SE 22**. Ensure that you have the JDK for Java 22 installed on your machine to compile and run the project successfully.
 
 ### Spring Boot
-The project now uses **Spring Boot 3.2.0** for enterprise-grade features including dependency injection, REST APIs, and configuration management.
+The project now uses **Spring Boot 3.3.0** for enterprise-grade features including dependency injection, REST APIs, and configuration management.
 
 ### Maven
 The project uses Maven for dependency management and builds processes. It is recommended to use the Maven Wrapper included in the project to ensure the correct version of Maven is utilized.
@@ -161,7 +161,29 @@ java -jar target/sportRadarExercise-0.5.0-SNAPSHOT.jar
 4. **Access REST API**
 - Base URL: `http://localhost:8080`
 - Health Check: `http://localhost:8080/actuator/health`
+- H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:testdb`, User: `sa`, Password: leave empty)
 - API Documentation: Available via Spring Boot endpoints
+
+### API Testing
+The run scripts include automated API testing. After starting the application, they will:
+
+```bash
+# Create a match
+curl -X POST http://localhost:8080/api/matches \
+  -H "Content-Type: application/json" \
+  -d '{"homeTeamName":"Team A","awayTeamName":"Team B","matchType":"FOOTBALL"}'
+
+# Get match summary
+curl http://localhost:8080/api/matches/summary
+
+# Update score
+curl -X PUT http://localhost:8080/api/matches/1/score \
+  -H "Content-Type: application/json" \
+  -d '{"homeScore":2,"awayScore":1}'
+
+# Test undo functionality
+curl -X POST http://localhost:8080/api/matches/undo
+```
 
 ### Using SDKMAN for Java Version Management
 For easy Java version management, use the provided scripts:
