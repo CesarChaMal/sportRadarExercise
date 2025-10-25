@@ -24,37 +24,9 @@ public class ScoreboardServiceTest {
 
     @Before
     public void setUp() {
-        scoreboardService = new ScoreboardService(new FootballMatchFactory());
+        scoreboardService = new ScoreboardService();
         homeTeam = new FootballTeam.Builder().name("Home Team").build();
         awayTeam = new FootballTeam.Builder().name("Away Team").build();
-    }
-
-    @Test
-    public void testStartMatchAsync() throws Exception {
-        boolean result = scoreboardService.startMatchAsync(homeTeam, awayTeam).get();
-        assertTrue(result);
-        assertEquals(1, scoreboardService.getAllMatches().size());
-    }
-
-    @Test
-    public void testUpdateScore() {
-        MatchInterface match = new FootballMatchFactory().createMatchBuilder(homeTeam, awayTeam).build();
-        scoreboardService.addMatch(match);
-        
-        scoreboardService.updateScore(match, 2, 1);
-        
-        assertEquals(2, match.getHomeScore());
-        assertEquals(1, match.getAwayScore());
-    }
-
-    @Test
-    public void testFinishMatch() {
-        MatchInterface match = new FootballMatchFactory().createMatchBuilder(homeTeam, awayTeam).build();
-        scoreboardService.addMatch(match);
-        
-        scoreboardService.finishMatch(match);
-        
-        assertEquals(0, scoreboardService.getAllMatches().size());
     }
 
     @Test
@@ -70,28 +42,7 @@ public class ScoreboardServiceTest {
         assertEquals(1, summary.size());
     }
 
-    @Test
-    public void testGetMatch() {
-        MatchInterface match = new FootballMatchFactory().createMatchBuilder(homeTeam, awayTeam).build();
-        scoreboardService.addMatch(match);
-        
-        Optional<MatchInterface> found = scoreboardService.getMatch(homeTeam, awayTeam);
-        
-        assertTrue(found.isPresent());
-        assertEquals(homeTeam, found.get().getHomeTeam());
-        assertEquals(awayTeam, found.get().getAwayTeam());
-    }
 
-    @Test
-    public void testGetMatchById() {
-        MatchInterface match = new FootballMatchFactory().createMatchBuilder(homeTeam, awayTeam).build();
-        scoreboardService.addMatch(match);
-        
-        MatchInterface found = scoreboardService.getMatchById(match.getId());
-        
-        assertNotNull(found);
-        assertEquals(match.getId(), found.getId());
-    }
 
     @Test
     public void testClear() {

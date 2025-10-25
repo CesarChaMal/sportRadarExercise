@@ -6,7 +6,6 @@ import com.sportradar.exercise.dto.UpdateScoreRequest;
 import com.sportradar.exercise.entity.MatchEntity;
 import com.sportradar.exercise.exception.MatchNotFoundException;
 import com.sportradar.exercise.service.MatchPersistenceService;
-import com.sportradar.exercise.service.ScoreboardService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,12 +21,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/matches")
 public class MatchController {
     
-    private final ScoreboardService scoreboardService;
     private final MatchPersistenceService persistenceService;
     
     @Autowired
-    public MatchController(ScoreboardService scoreboardService, MatchPersistenceService persistenceService) {
-        this.scoreboardService = scoreboardService;
+    public MatchController(MatchPersistenceService persistenceService) {
         this.persistenceService = persistenceService;
     }
     

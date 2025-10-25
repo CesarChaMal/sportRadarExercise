@@ -1,7 +1,7 @@
 package com.sportradar.exercise;
 
 import com.sportradar.exercise.dto.CreateMatchRequest;
-import com.sportradar.exercise.service.ScoreboardService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +27,9 @@ public class SpringBootIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private ScoreboardService scoreboardService;
-
     @Test
     public void contextLoads() {
-        assertNotNull(scoreboardService);
+        assertNotNull(restTemplate);
     }
 
     @Test

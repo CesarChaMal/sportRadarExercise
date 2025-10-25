@@ -3,7 +3,7 @@ package com.sportradar.exercise.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sportradar.exercise.dto.CreateMatchRequest;
 import com.sportradar.exercise.dto.UpdateScoreRequest;
-import com.sportradar.exercise.service.ScoreboardService;
+import com.sportradar.exercise.service.MatchPersistenceService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class MatchControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ScoreboardService scoreboardService;
+    private MatchPersistenceService persistenceService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -45,7 +45,7 @@ public class MatchControllerTest {
 
     @Test
     public void testGetSummary() throws Exception {
-        when(scoreboardService.getSummary()).thenReturn(Collections.emptyList());
+        when(persistenceService.findActiveMatches()).thenReturn(Collections.emptyList());
         
         mockMvc.perform(get("/api/matches/summary"))
                 .andExpect(status().isOk())
