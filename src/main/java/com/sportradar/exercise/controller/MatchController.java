@@ -1,64 +1,90 @@
 package com.sportradar.exercise.controller;
 
-import com.sportradar.exercise.controller.dto.MatchResponse;
-import com.sportradar.exercise.controller.dto.StartMatchRequest;
-import com.sportradar.exercise.controller.dto.UpdateScoreRequest;
-import com.sportradar.exercise.match.MatchInterface;
+import com.sportradar.exercise.dto.CreateMatchRequest;
+import com.sportradar.exercise.dto.MatchResponse;
+import com.sportradar.exercise.dto.UpdateScoreRequest;
+import com.sportradar.exercise.entity.MatchEntity;
+import com.sportradar.exercise.service.MatchPersistenceService;
 import com.sportradar.exercise.service.ScoreboardService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/matches")
+@RequestMapping("/api/matches")
 public class MatchController {
     
     private final ScoreboardService scoreboardService;
+    private final MatchPersistenceService persistenceService;
     
-    public MatchController(ScoreboardService scoreboardService) {
+    @Autowired
+    public MatchController(ScoreboardService scoreboardService, MatchPersistenceService persistenceService) {
         this.scoreboardService = scoreboardService;
+        this.persistenceService = persistenceService;
     }
     
     @PostMapping
-    public ResponseEntity<MatchResponse> startMatch(@RequestBody StartMatchRequest request) {
-        scoreboardService.startMatchAsync(request.getHomeTeam(), request.getAwayTeam());
-        return ResponseEntity.ok(new MatchResponse("Match started successfully"));
+    public ResponseEntity<MatchResponse> createMatch(@RequestBody CreateMatchRequest request) {
+        MatchEntity entity = new MatchEntity(request.homeTeamName(), request.awayTeamName(), request.matchType());
+        entity.setStatus("IN_PROGRESS");
+        MatchEntity saved = persistenceService.saveMatch(entity);
+        
+        MatchResponse response = new MatchResponse(
+                saved.getId(),
+                saved.getHomeTeamName(),
+                saved.getAwayTeamName(),
+                saved.getHomeScore(),
+                saved.getAwayScore(),
+                saved.getStatus()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
     @PutMapping("/{matchId}/score")
-    public ResponseEntity<Void> updateScore(@PathVariable Long matchId, 
-                                          @RequestBody UpdateScoreRequest request) {
-        MatchInterface match = scoreboardService.getMatchById(matchId);
-        if (match != null) {
-            scoreboardService.updateScore(match, request.getHomeScore(), request.getAwayScore());
-            return ResponseEntity.ok().build();
+    public ResponseEntity<MatchResponse> updateScore(@PathVariable Long matchId, @RequestBody UpdateScoreRequest request) {
+        try {
+            MatchEntity updated = persistenceService.updateScore(matchId, request.homeScore(), request.awayScore());
+            MatchResponse response = new MatchResponse(
+                    updated.getId(),
+                    updated.getHomeTeamName(),
+                    updated.getAwayTeamName(),
+                    updated.getHomeScore(),
+                    updated.getAwayScore(),
+                    updated.getStatus()
+            );
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
     }
     
     @GetMapping("/summary")
-    public ResponseEntity<List<MatchResponse>> getSummary() {
-        List<MatchInterface> matches = scoreboardService.getSummary();
-        List<MatchResponse> response = matches.stream()
-            .map(match -> new MatchResponse(
-                match.getId(),
-                match.getHomeTeam().getName(),
-                match.getAwayTeam().getName(),
-                match.getHomeScore(),
-                match.getAwayScore()
-            ))
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<MatchResponse>> getMatchSummary() {
+        List<MatchResponse> summary = persistenceService.findActiveMatches().stream()
+                .map(match -> new MatchResponse(
+                        match.getId(),
+                        match.getHomeTeamName(),
+                        match.getAwayTeamName(),
+                        match.getHomeScore(),
+                        match.getAwayScore(),
+                        match.getStatus()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(summary);
     }
     
     @DeleteMapping("/{matchId}")
     public ResponseEntity<Void> finishMatch(@PathVariable Long matchId) {
-        MatchInterface match = scoreboardService.getMatchById(matchId);
-        if (match != null) {
-            scoreboardService.finishMatch(match);
-            return ResponseEntity.ok().build();
+        Optional<MatchEntity> match = persistenceService.findById(matchId);
+        if (match.isPresent()) {
+            persistenceService.deleteMatch(matchId);
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
