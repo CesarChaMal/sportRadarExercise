@@ -1,6 +1,6 @@
 package com.sportradar.exercise.observer;
 
-import com.sportradar.exercise.scoring.Scoreboard;
+
 
 import java.util.logging.Logger;
 

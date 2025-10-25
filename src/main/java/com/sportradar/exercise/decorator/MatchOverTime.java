@@ -1,7 +1,7 @@
 package com.sportradar.exercise.decorator;
 
 import com.sportradar.exercise.match.Match;
-import com.sportradar.exercise.scoring.Scoreboard;
+
 import com.sportradar.exercise.strategy.ScoringStrategy;
 
 import java.util.logging.Logger;
